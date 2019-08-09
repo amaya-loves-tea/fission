@@ -9,11 +9,10 @@ import ComputedObservable from './computed-observable';
 import Observable from './observable';
 import {
   ATTACHED_OBSERVABLE_KEY,
-  ComputedFunction,
   IObservable,
-  IObservableReference,
   ObservedData,
   WatcherFunction,
+  IComputedObservable,
 } from './types';
 
 /**
@@ -66,33 +65,17 @@ export function observe<T extends object>(data: T): ObservedData<T> {
  */
 export function observeObject<T extends object>(data: T, observable?: IObservable<T>): void {
   if (isObject(data)) {
-    let shouldSeal = true;
-
-    if (Array.isArray(data)) {
-      shouldSeal = false;
-      if (!(data as IObservableReference<T>).__observable__) {
-        Object.defineProperty(data, ATTACHED_OBSERVABLE_KEY, { value: observable });
-        prototypeAugment((data as unknown) as object, arrayMethods);
-      }
-    }
-
+    // make properties reactive
     const keys = Object.keys(data);
     for (let i = 0; i < keys.length; i++) {
-      let value = data[keys[i] as keyof typeof data];
-      let valueObservable: IObservable<typeof value>;
+      const value = data[keys[i] as keyof typeof data];
+      let valueObservable: IObservable<typeof value> | IComputedObservable<typeof value>;
 
       if (typeof value === 'function') {
-        value = value.bind(data);
-        valueObservable = new ComputedObservable((value as unknown) as ComputedFunction<
-          typeof value
-        >);
+        valueObservable = new ComputedObservable(value.bind(data));
 
         currentEvaluatingObservable = valueObservable;
-        const evaluatedObservableValue = (valueObservable as ComputedObservable<T>).evaluate();
-        valueObservable.update((evaluatedObservableValue as unknown) as T[Extract<
-          keyof T,
-          string
-        >]);
+        valueObservable.update(valueObservable.evaluate());
         currentEvaluatingObservable = undefined;
       } else {
         valueObservable = new Observable(value);
@@ -103,7 +86,16 @@ export function observeObject<T extends object>(data: T, observable?: IObservabl
       defineReactiveProperty(data, keys[i], valueObservable);
     }
 
-    if (shouldSeal) {
+    /**
+     * If data is an array attach helpers else seal the data object
+     * to avoid property additions/deletions
+     */
+    if (Array.isArray(data)) {
+      if (ATTACHED_OBSERVABLE_KEY in data === false) {
+        Object.defineProperty(data, ATTACHED_OBSERVABLE_KEY, { value: observable });
+        prototypeAugment(data, arrayMethods);
+      }
+    } else {
       Object.seal(data);
     }
   }
@@ -136,32 +128,31 @@ export function defineReactiveProperty<T>(
   key: string | number,
   observable: IObservable<T>,
 ): void {
-  const propertyDescriptor = Object.getOwnPropertyDescriptor(obj, key);
-  const getter = propertyDescriptor ? propertyDescriptor.get : undefined;
-  const setter = propertyDescriptor ? propertyDescriptor.set : undefined;
+  const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+  const getter = descriptor && descriptor.get ? descriptor.get.bind(obj) : undefined;
+  const setter = descriptor && descriptor.set ? descriptor.set.bind(obj) : undefined;
 
   Object.defineProperty(obj, key, {
-    get(): Observable<T> | any {
+    get: function reactiveGetter(): Observable<T> | T {
       if (arguments[0] === true) {
-        return observable;
+        return observable as Observable<T>;
       } else {
-        if (currentEvaluatingObservable) {
-          observable.observe(currentEvaluatingObservable as ComputedObservable<T>);
-        }
+        currentEvaluatingObservable && observable.observe(currentEvaluatingObservable);
+
         return getter ? getter.call(obj) : observable.value;
       }
     },
     // prettier-ignore
-    set: observable instanceof ComputedObservable ? (): void => { /* */ } : function (newValue: T): void {      
-      if (setter) {
-        setter.call(obj, newValue);
-      }
-      newValue = getter ? getter.call(obj): newValue;
-      if (newValue !== observable.value) {
-        observeObject(newValue as unknown as object, observable as unknown as IObservable<object>);
-        observable.update(newValue);
-      }
-    },
+    set: observable instanceof ComputedObservable ? 
+      undefined : 
+      function reactiveSetter(value: T): void {
+        setter && setter(value);
+        value = getter ? getter() : value;
+        if (observable.value !== value) {
+          observeObject((value as unknown) as object, (observable as unknown) as IObservable<object>);
+          observable.update(value);
+        }
+      },
     enumerable: true,
   });
 }
@@ -178,14 +169,8 @@ export function extractObservableFromProperty(
   object: object,
   key: string | number,
 ): IObservable<any> | undefined {
-  const propertyDescriptor: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(
-    object,
-    key,
-  );
-  if (propertyDescriptor && propertyDescriptor.get) {
-    return (propertyDescriptor.get as any)(true);
-  }
-  return undefined;
+  const descriptor = Object.getOwnPropertyDescriptor(object, key);
+  return descriptor && descriptor.get ? (descriptor.get as Function)(true) : undefined;
 }
 
 /**
@@ -230,7 +215,7 @@ export function navigateToPropertyPath<T extends object>(
         obj = obj[property as keyof object];
       }
     } else {
-      throw new Error(`Object does not contain the property with path ${path}`);
+      throw new Error(`Object does not contain the property with path '${path}'`);
     }
   }
 
@@ -262,7 +247,7 @@ function modifyPropertyWatcherList<T extends object>(
         observable.unwatch(watcher);
       }
     } else {
-      throw new Error('Property is not an observable property.');
+      throw new Error('Property is not observable.');
     }
   });
 }

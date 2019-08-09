@@ -1,6 +1,6 @@
 import { logError } from '../util';
+import { ComputedFunction, IComputedObservable } from './types';
 import Observable from './observable';
-import { ComputedFunction } from './types';
 
 /**
  * Exception thrown when a [[ComputedFunction]] produces an error.
@@ -16,7 +16,7 @@ const COMPUTED_FUNCTION_EXCEPTION = 'Computed function failed to evaluate.';
  *
  * @typeparam T - Any valid javascript type that is returned from the [[ComputedObservable._computedFunction]] function.
  */
-export default class ComputedObservable<T> extends Observable<any> {
+class ComputedObservable<T> extends Observable<unknown> implements IComputedObservable<T> {
   /**
    * Function that should be used to evaluate this object's [[Observable.value]].
    */
@@ -44,3 +44,5 @@ export default class ComputedObservable<T> extends Observable<any> {
     return undefined;
   }
 }
+
+export default ComputedObservable;

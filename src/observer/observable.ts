@@ -47,8 +47,11 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
  *
  * @typeparam T - Any valid javascript value.
  */
-export default class Observable<T> implements IObservable<T> {
-  public value: T;
+class Observable<T> implements IObservable<T> {
+  /**
+   * Current value of the observable.
+   */
+  public value: T | undefined;
 
   /**
    * List of [[ComputedObservable]]s that need to be updated when [[value]] changes.
@@ -63,7 +66,7 @@ export default class Observable<T> implements IObservable<T> {
   /**
    * @param value - Initial value of the observable.
    */
-  public constructor(value: T) {
+  public constructor(value: T | undefined) {
     this.value = value;
   }
 
@@ -72,7 +75,7 @@ export default class Observable<T> implements IObservable<T> {
    *
    * @param value - New value of the observable.
    */
-  public update(value: T): void {
+  public update(value: T | undefined): void {
     const oldValue = this.value;
     this.value = value;
 
@@ -135,3 +138,5 @@ export default class Observable<T> implements IObservable<T> {
     }
   }
 }
+
+export default Observable;

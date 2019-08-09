@@ -9,7 +9,7 @@ export interface IObservable<T> {
   /**
    * Current value of the observable.
    */
-  value: T;
+  value: T | undefined;
 
   /**
    * Method used to update the [[value]] property.
@@ -45,6 +45,15 @@ export interface IObservable<T> {
    * @param watcher - [[WatcherFunction]] to be removed.
    */
   unwatch(watcherFunction: WatcherFunction<T>): void;
+}
+
+/**
+ * Basic signature of a [[ComputedObservable]].
+ *
+ * @typeparam T - [[ComputedFunction]]
+ */
+export interface IComputedObservable<T> extends IObservable<unknown> {
+  evaluate(): T | undefined;
 }
 
 /**
@@ -106,11 +115,10 @@ export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : T;
  * type dataTypeAsObservedData = {
  *   price: number,
  *   qty: number,
- *   total: string
+ *   total: number
  * };
- *
  * ```
  */
 export type ObservedData<T> = {
-  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
+  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>
 };

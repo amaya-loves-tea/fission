@@ -291,7 +291,7 @@ describe('observer functions', () => {
           validateObjectObserved(target);
         });
 
-        it('creates an empty setter if the observable passed in is a computed observable instance', () => {
+        it('doest not create a setter if the observable passed in is a computed observable instance', () => {
           const target: any = {};
           const observable = new ComputedObservable(() => 67);
           observable.update(observable.evaluate());
@@ -299,24 +299,17 @@ describe('observer functions', () => {
 
           expect(target.total).toBe(67);
 
-          target.total = 55;
-
-          expect(target.total).toBe(67);
+          expect(() => {
+            target.total = 55;
+          }).toThrowError('Cannot set property total of #<Object> which has only a getter');
         });
       });
     });
 
     it('throws an error if the type being operated on is not an object', () => {
-      const target = 'test';
-      let failed = false;
-
-      try {
-        defineReactiveProperty(target as any, 'invalid', new Observable(5));
-      } catch {
-        failed = true;
-      }
-
-      expect(failed).toBe(true);
+      expect(() =>
+        defineReactiveProperty('test' as any, 'invalid', new Observable(5)),
+      ).toThrowError('Object.defineProperty called on non-object');
     });
   });
 
@@ -719,15 +712,9 @@ describe('observer functions', () => {
           },
         },
       };
-      let failed = false;
-
-      try {
-        navigateToPropertyPath(obj, 'nested.nestedAgain.props', jest.fn());
-      } catch {
-        failed = true;
-      }
-
-      expect(failed).toBe(true);
+      expect(() => navigateToPropertyPath(obj, 'nested.nestedAgain.props', jest.fn())).toThrowError(
+        `Object does not contain the property with path 'nested.nestedAgain.props'`,
+      );
     });
   });
 
@@ -761,7 +748,7 @@ describe('observer functions', () => {
 
       expect(() => {
         addPropertyWatcher(notObserved, 'price', value => console.log(value));
-      }).toThrowError(new Error('Property is not an observable property.'));
+      }).toThrowError(new Error('Property is not observable.'));
     });
   });
 
@@ -815,7 +802,7 @@ describe('observer functions', () => {
 
       expect(() => {
         removePropertyWatcher(notObserved, 'price', value => console.log(value));
-      }).toThrowError(new Error('Property is not an observable property.'));
+      }).toThrowError(new Error('Property is not observable.'));
     });
   });
 });
@@ -873,7 +860,7 @@ export function validatePropertyObserved(obj: object, key: string | number) {
   }
 
   const propertyDescriptor = Object.getOwnPropertyDescriptor(obj, key);
-  if (propertyDescriptor && propertyDescriptor.get && propertyDescriptor.set) {
+  if (propertyDescriptor && propertyDescriptor.get) {
     const getter = propertyDescriptor.get as any;
 
     expect(getter()).toBe(value);
