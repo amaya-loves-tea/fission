@@ -1,8 +1,6 @@
 /**
- * Creates a greeting message.
- *
- * @param name - Name to be used in the greeting message.
+ * Entry point to the reactor library that exposes the public API.
  */
-export function greeter(name: string): string {
-  return `Hello ${name}, what can I do for you?`;
-}
+
+/** @ignore */
+export { observe, addPropertyWatcher, removePropertyWatcher } from './observer';
