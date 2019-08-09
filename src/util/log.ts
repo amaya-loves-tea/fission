@@ -1,4 +1,3 @@
-// tslint:disable:no-console
 /**
  * Logs an error to the console.
  *
@@ -15,5 +14,5 @@ export function logError(message: string, exception: any): void {
  * @param message - Warning message.
  */
 export function logWarning(message: string): void {
-  console.warn(message);
+  console.warn(`[Reactive State Warning]: ${message}`);
 }

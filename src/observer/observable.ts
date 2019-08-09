@@ -48,14 +48,7 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
  * @typeparam T - Any valid javascript value.
  */
 export default class Observable<T> implements IObservable<T> {
-  /** @ignore */
-  private _value: T;
-  /**
-   * Current value of the observable.
-   */
-  public get value(): T {
-    return this._value;
-  }
+  public value: T;
 
   /**
    * List of [[ComputedObservable]]s that need to be updated when [[value]] changes.
@@ -71,7 +64,29 @@ export default class Observable<T> implements IObservable<T> {
    * @param value - Initial value of the observable.
    */
   public constructor(value: T) {
-    this._value = value;
+    this.value = value;
+  }
+
+  /**
+   * Method used to update the [[value]] property.
+   *
+   * @param value - New value of the observable.
+   */
+  public update(value: T): void {
+    const oldValue = this.value;
+    this.value = value;
+
+    for (let i = 0; i < this._watchers.length; i++) {
+      try {
+        this._watchers[i](value, oldValue);
+      } catch (exception) {
+        logError(WATCHER_EXCEPTION, exception);
+      }
+    }
+
+    for (let i = 0; i < this._observers.length; i++) {
+      this._observers[i].update(this._observers[i].evaluate());
+    }
   }
 
   /**
@@ -117,45 +132,6 @@ export default class Observable<T> implements IObservable<T> {
     const index = this._watchers.indexOf(watcher);
     if (index > -1) {
       this._watchers.splice(index, 1);
-    }
-  }
-
-  /**
-   * Method used to update the [[value]] property.
-   *
-   * @param value - New value of the observable.
-   */
-  public update(value: T): void {
-    const oldValue = this.value;
-    this._value = value;
-
-    this._updateObservers();
-
-    this._invokeWatchers(this.value, oldValue);
-  }
-
-  /**
-   * Iterates over observers and recalculates their values.
-   */
-  protected _updateObservers(): void {
-    for (const observer of this._observers) {
-      observer.update(observer.evaluate());
-    }
-  }
-
-  /**
-   * Safely invoke the watchers registered on this observable.
-   *
-   * @param value - New value of the observer.
-   * @param oldValue - Old value of the observer.
-   */
-  protected _invokeWatchers(value: T | undefined, oldValue: T | undefined): void {
-    for (const callback of this._watchers) {
-      try {
-        callback(value, oldValue);
-      } catch (exception) {
-        logError(WATCHER_EXCEPTION, exception);
-      }
     }
   }
 }

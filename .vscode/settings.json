@@ -12,7 +12,8 @@
     "prettierrc",
     "releaserc",
     "toolchain",
-    "typedoc"
+    "typedoc",
+    "typeparam"
   ],
   "search.exclude": {
     "**/dist": true,

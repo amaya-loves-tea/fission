@@ -16,13 +16,13 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
 
 ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'].forEach((method): void => {
   // Cache the original method
-  const original: any = Array.prototype[method as keyof typeof Array.prototype];
+  const original: Function = Array.prototype[method as keyof typeof Array.prototype];
 
   // Make the current iterator method a mutator function
   Object.defineProperty(arrayMethods, method, {
-    value: function mutator<T extends T[]>(this: T & IObservableReference<any[]>): any {
-      const result = original.apply(this, arguments);
-      const observable: IObservable<any[]> = this.__observable__;
+    value: function mutator<T extends T[], U>(this: T & IObservableReference<unknown[]>): U {
+      const result = original.apply(this, arguments) as U;
+      const observable: IObservable<unknown[]> = this.__observable__;
 
       switch (method) {
         // Purpose fall through since both methods use the same logic
@@ -52,9 +52,9 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
  * @param start - Index to start from.
  * @param stop - Index to stop at. For example "stop = 9" will stop at index 8.
  */
-function observeArrayItems(array: any[], start: number, stop: number): void {
+function observeArrayItems(array: unknown[], start: number, stop: number): void {
   for (let i = start; i < stop; i++) {
-    observeObject(array[i]);
+    observeObject(array[i] as object);
     const observable = new Observable(array[i]);
     defineReactiveProperty(array, i, observable);
   }

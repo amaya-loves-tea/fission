@@ -760,7 +760,6 @@ describe('observer functions', () => {
       };
 
       expect(() => {
-        // tslint:disable-next-line:no-console
         addPropertyWatcher(notObserved, 'price', value => console.log(value));
       }).toThrowError(new Error('Property is not an observable property.'));
     });
@@ -815,7 +814,6 @@ describe('observer functions', () => {
       };
 
       expect(() => {
-        // tslint:disable-next-line:no-console
         removePropertyWatcher(notObserved, 'price', value => console.log(value));
       }).toThrowError(new Error('Property is not an observable property.'));
     });

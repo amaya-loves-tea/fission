@@ -26,8 +26,7 @@ export default class ComputedObservable<T> extends Observable<any> {
    * @param computedFunction - Function that should be used to evaluate this object's [[Observable.value]].
    */
   public constructor(computedFunction: ComputedFunction<T>) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    super(undefined!);
+    super(undefined);
     this._computedFunction = computedFunction;
   }
 

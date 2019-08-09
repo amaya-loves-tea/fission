@@ -1,11 +1,16 @@
 import consoleReference from 'console';
 import Observable from '../../src/observer/observable';
+import ComputedObservable from './computed-observable';
 
 global.console = consoleReference;
-const errorOutput = jest.fn();
-consoleReference.error = errorOutput;
+let errorOutput = jest.fn();
 
 describe('Observable', () => {
+  beforeEach(() => {
+    errorOutput = jest.fn();
+    consoleReference.error = errorOutput;
+  });
+
   function createMockObserver() {
     return {
       evaluate: jest.fn(),
@@ -19,32 +24,6 @@ describe('Observable', () => {
 
       expect(observable.value).toBe('test');
     });
-
-    it('cannot be set directly', () => {
-      const observable = new Observable(43);
-
-      try {
-        // @ts-ignore
-        observable.value = 99;
-        fail('able to set observable value');
-      } catch (ex) {
-        expect(ex).toBeDefined();
-      }
-
-      expect(observable.value).toBe(43);
-    });
-
-    it('is a getter', () => {
-      const observable = new Observable([1, 2, 3]);
-
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(observable),
-        'value',
-      );
-
-      expect(propertyDescriptor).toBeDefined();
-      expect(propertyDescriptor!.get).toBeDefined();
-    });
   });
 
   describe('observe', () => {
@@ -56,9 +35,7 @@ describe('Observable', () => {
       observable.observe(mockObserver);
 
       // @ts-ignore
-      observable._updateObservers();
-
-      expect(mockObserver.update).toBeCalledTimes(1);
+      expect(observable._observers).toContain(mockObserver);
     });
 
     it('does not add duplicate observables', () => {
@@ -70,7 +47,7 @@ describe('Observable', () => {
       observable.observe(mockObserver);
 
       // @ts-ignore
-      observable._updateObservers();
+      observable.update(false);
 
       expect(mockObserver.update).toBeCalledTimes(1);
     });
@@ -87,7 +64,7 @@ describe('Observable', () => {
       observable.observe(observer2);
 
       // @ts-ignore
-      observable._updateObservers();
+      observable.update(true);
 
       expect(observer1.update).toBeCalledTimes(1);
       expect(observer2.update).toBeCalledTimes(1);
@@ -98,7 +75,7 @@ describe('Observable', () => {
       observable.unobserve(observer1);
 
       // @ts-ignore
-      observable._updateObservers();
+      observable.update(false);
 
       expect(observer1.update).toBeCalledTimes(0);
       expect(observer2.update).toBeCalledTimes(1);
@@ -114,7 +91,7 @@ describe('Observable', () => {
       observable.observe(observer2);
 
       // @ts-ignore
-      observable._updateObservers();
+      observable.update('new value');
 
       expect(observer1.update).toBeCalledTimes(1);
       expect(observer2.update).toBeCalledTimes(1);
@@ -126,7 +103,7 @@ describe('Observable', () => {
       observable.unobserve(observer1);
 
       // @ts-ignore
-      observable._updateObservers();
+      observable.update('another new value');
 
       expect(observer1.update).toBeCalledTimes(0);
       expect(observer2.update).toBeCalledTimes(1);
@@ -202,34 +179,6 @@ describe('Observable', () => {
     });
   });
 
-  describe('_invokeWatchers', () => {
-    it('calls registered watcher functions', () => {
-      const observer = new Observable('test');
-      const watcher = jest.fn();
-
-      (observer as any)._watchers.push(watcher);
-
-      (observer as any)._invokeWatchers('new value', 'old value');
-
-      expect(watcher).toBeCalledTimes(1);
-      expect(watcher).toBeCalledWith('new value', 'old value');
-    });
-
-    it('logs an error to the console when a watcher throws an exception', () => {
-      const observer = new Observable('test');
-      const watcher = jest.fn(() => {
-        throw new Error('test');
-      });
-
-      (observer as any)._watchers.push(watcher);
-
-      (observer as any)._invokeWatchers('new value', 'old value');
-
-      expect(watcher).toBeCalledTimes(1);
-      expect(errorOutput).toBeCalledTimes(1);
-    });
-  });
-
   describe('update', () => {
     it('can be used to update the observable value', () => {
       const observable = new Observable([1, 2, 3]);
@@ -243,18 +192,45 @@ describe('Observable', () => {
 
     it('by default notifies observers and watchers of changes', () => {
       const observable = new Observable(99);
+      const mockObserver = createMockObserver();
+      const mockWatcher = jest.fn();
 
-      // @ts-ignore
-      observable._updateObservers = jest.fn(observable._updateObservers);
-      // @ts-ignore
-      observable._invokeWatchers = jest.fn(observable._invokeWatchers);
+      observable.observe(mockObserver);
+      observable.watch(mockWatcher);
 
       observable.update(300);
 
-      // @ts-ignore
-      expect(observable._updateObservers).toBeCalledTimes(1);
-      // @ts-ignore
-      expect(observable._invokeWatchers).toBeCalledTimes(1);
+      expect(mockObserver.update).toBeCalledTimes(1);
+      expect(mockWatcher).toBeCalledTimes(1);
+    });
+
+    test('watcher errors are safely captured', () => {
+      const observable = new Observable('test');
+      const watcher = jest.fn(() => {
+        throw new Error('test');
+      });
+
+      observable.watch(watcher);
+
+      observable.update('new string');
+
+      expect(watcher).toBeCalledTimes(1);
+      expect(errorOutput).toBeCalledTimes(1);
+    });
+
+    test('observer errors are safely captured', () => {
+      const observable = new Observable('test');
+      const errorComputedFunction = jest.fn(() => {
+        throw new Error('test');
+      });
+      const mockObserver = new ComputedObservable(errorComputedFunction);
+
+      observable.observe(mockObserver);
+
+      observable.update('new string');
+
+      expect(errorComputedFunction).toBeCalledTimes(1);
+      expect(errorOutput).toBeCalledTimes(1);
     });
   });
 });

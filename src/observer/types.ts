@@ -111,7 +111,6 @@ export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : T;
  *
  * ```
  */
-// tslint:disable:ban-types
 export type ObservedData<T> = {
   [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
 };

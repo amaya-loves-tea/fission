@@ -88,7 +88,7 @@ export function observeObject<T extends object>(data: T, observable?: IObservabl
         >);
 
         currentEvaluatingObservable = valueObservable;
-        const evaluatedObservableValue = (valueObservable as ComputedObservable<T>).evaluate()!;
+        const evaluatedObservableValue = (valueObservable as ComputedObservable<T>).evaluate();
         valueObservable.update((evaluatedObservableValue as unknown) as T[Extract<
           keyof T,
           string
@@ -220,7 +220,7 @@ export function navigateToPropertyPath<T extends object>(
   callback: (obj: object, key: string) => void,
 ): void {
   const properties = path.split('.');
-  let property!: string;
+  let property: string;
 
   for (let i = 0; i < properties.length; i++) {
     // eslint-disable-next-line no-prototype-builtins
@@ -234,7 +234,8 @@ export function navigateToPropertyPath<T extends object>(
     }
   }
 
-  callback(obj, property);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  callback(obj, property!);
 }
 
 /**
