@@ -20,7 +20,7 @@ import {
  *
  * This property is globally unique because only one [[IObservable]] can be evaluated at a time.
  */
-let currentEvaluatingObservable: IObservable<any> | undefined;
+let currentEvaluatingObservable: IComputedObservable<unknown> | undefined;
 
 /**
  * Takes a data object and recursively makes all its properties reactive.
@@ -168,7 +168,7 @@ export function defineReactiveProperty<T>(
 export function extractObservableFromProperty(
   object: object,
   key: string | number,
-): IObservable<any> | undefined {
+): IObservable<unknown> | undefined {
   const descriptor = Object.getOwnPropertyDescriptor(object, key);
   return descriptor && descriptor.get ? (descriptor.get as Function)(true) : undefined;
 }
@@ -231,14 +231,14 @@ export function navigateToPropertyPath<T extends object>(
  * @param watcher - [[WatcherFunction]].
  * @param operation - Specifies what to do with the [[WatcherFunction]]
  */
-function modifyPropertyWatcherList<T extends object>(
+function modifyPropertyWatcherList<T extends object, U>(
   observedData: T,
   path: string,
-  watcher: WatcherFunction<any>,
+  watcher: WatcherFunction<U>,
   operation: 'add' | 'remove',
 ): void {
   navigateToPropertyPath(observedData, path, (obj, property): void => {
-    const observable = extractObservableFromProperty(obj, property);
+    const observable = extractObservableFromProperty(obj, property) as IObservable<U>;
 
     if (observable) {
       if (operation === 'add') {

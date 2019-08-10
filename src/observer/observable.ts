@@ -56,7 +56,7 @@ class Observable<T> implements IObservable<T> {
   /**
    * List of [[ComputedObservable]]s that need to be updated when [[value]] changes.
    */
-  protected _observers: ComputedObservable<any>[] = [];
+  protected _observers: ComputedObservable<unknown>[] = [];
 
   /**
    * List of [[WatcherFunction]]s that get run when the observable [[value]] changes.
@@ -97,7 +97,7 @@ class Observable<T> implements IObservable<T> {
    *
    * @param observable - [[ComputedObservable]] to be observed.
    */
-  public observe(observable: ComputedObservable<any>): void {
+  public observe<U>(observable: ComputedObservable<U>): void {
     if (this._observers.indexOf(observable) === -1) {
       this._observers.push(observable);
     }
@@ -108,7 +108,7 @@ class Observable<T> implements IObservable<T> {
    *
    * @param observable - [[ComputedObservable]] to stop observing.
    */
-  public unobserve(observable: ComputedObservable<any>): void {
+  public unobserve<U>(observable: ComputedObservable<U>): void {
     const index = this._observers.indexOf(observable);
     if (index > -1) {
       this._observers.splice(index, 1);

@@ -3,7 +3,7 @@
  */
 /** @ignore */
 import { defineReactiveProperty, observeObject } from '.';
-import { IObservable, IObservableReference } from './types';
+import { IObservableReference } from './types';
 import Observable from './observable';
 
 /**
@@ -20,9 +20,9 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
 
   // Make the current iterator method a mutator function
   Object.defineProperty(arrayMethods, method, {
-    value: function mutator<T extends T[], U>(this: T & IObservableReference<unknown[]>): U {
+    value: function mutator<T extends T[], U>(this: T): U {
       const result = original.apply(this, arguments) as U;
-      const observable: IObservable<unknown[]> = this.__observable__;
+      const observable = ((this as unknown) as IObservableReference<T>).__observable__;
 
       switch (method) {
         // Purpose fall through since both methods use the same logic
@@ -52,7 +52,7 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
  * @param start - Index to start from.
  * @param stop - Index to stop at. For example "stop = 9" will stop at index 8.
  */
-function observeArrayItems(array: unknown[], start: number, stop: number): void {
+function observeArrayItems<T extends T[]>(array: T, start: number, stop: number): void {
   for (let i = start; i < stop; i++) {
     observeObject(array[i] as object);
     const observable = new Observable(array[i]);

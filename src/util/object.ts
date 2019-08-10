@@ -16,7 +16,7 @@ export function prototypeAugment(target: object, source: object): object {
  *
  * @param value - Value to check.
  */
-export function isObject(value: unknown): boolean {
+export function isObject(value: any): boolean {
   return value !== null && typeof value === 'object' ? true : false;
 }
 

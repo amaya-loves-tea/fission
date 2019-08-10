@@ -23,14 +23,14 @@ export interface IObservable<T> {
    *
    * @param observable - [[IObservable]] to be observed.
    */
-  observe(observable: IObservable<any>): void;
+  observe<U>(observable: IComputedObservable<U>): void;
 
   /**
    * Stop observing an [[IObservable]].
    *
    * @param observable - [[IObservable]] to stop observing.
    */
-  unobserve(observable: IObservable<any>): void;
+  unobserve<U>(observable: IComputedObservable<U>): void;
 
   /**
    * Add a [[WatcherFunction]] to be called when [[value]] changes.
@@ -90,7 +90,7 @@ export type WatcherFunction<T> = (value: T | undefined, oldValue: T | undefined)
 /**
  * Gets the return type of a function.
  */
-export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : T;
+export type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
 
 /**
  * Transform ComputedFunctions in observer data to computed properties.
@@ -120,5 +120,5 @@ export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : T;
  * ```
  */
 export type ObservedData<T> = {
-  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>
+  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
 };

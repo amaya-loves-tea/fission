@@ -4,7 +4,7 @@
  * @param message - Additional information about the exception.
  * @param exception - Exception.
  */
-export function logError(message: string, exception: any): void {
+export function logError(message: string, exception: Error): void {
   console.error(`[Reactive State Error]: ${message}\n${exception.stack}`);
 }
 
