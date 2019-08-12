@@ -2,8 +2,7 @@
  * Helper functionality for array observables.
  */
 /** @ignore */
-import { defineReactiveProperty, observeObject } from '.';
-import { IObservableReference } from './types';
+import { defineReactiveProperty, observeObject, ATTACHED_OBSERVABLE_KEY } from '.';
 import Observable from './observable';
 
 /**
@@ -22,7 +21,7 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
   Object.defineProperty(arrayMethods, method, {
     value: function mutator<T extends T[], U>(this: T): U {
       const result = original.apply(this, arguments) as U;
-      const observable = ((this as unknown) as IObservableReference<T>).__observable__;
+      const observable = (this as any)[ATTACHED_OBSERVABLE_KEY];
 
       switch (method) {
         // Purpose fall through since both methods use the same logic

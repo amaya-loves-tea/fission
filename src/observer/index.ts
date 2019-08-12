@@ -6,21 +6,46 @@
 import { isObject, isPlainObject, prototypeAugment, navigateToPropertyPath } from '../util';
 import { arrayMethods } from './array';
 import ComputedObservable from './computed-observable';
-import Observable from './observable';
-import {
-  ATTACHED_OBSERVABLE_KEY,
-  IObservable,
-  ObservedData,
-  WatcherFunction,
-  IComputedObservable,
-} from './types';
+import Observable, { WatcherFunction } from './observable';
 
 /**
- * The [[IObservable]] currently being created and evaluated.
- *
- * This property is globally unique because only one [[IObservable]] can be evaluated at a time.
+ * Gets the return type of a function.
  */
-let currentEvaluatingObservable: IComputedObservable<unknown> | undefined;
+type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
+
+/**
+ * Transform functions on objects to properties with the value the function returns.
+ *
+ * ```typescript
+ * type dataType = {
+ *  price: number,
+ *  qty: number,
+ *  total(): number
+ * };
+ *
+ * // The transformed type after using ObservedData<T>
+ * type dataTypeAsObservedData = {
+ *   price: number,
+ *   qty: number,
+ *   total: number
+ * };
+ * ```
+ */
+type ObservedData<T> = {
+  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
+};
+
+/**
+ * Key used to attach an observable instance to an object.
+ */
+export const ATTACHED_OBSERVABLE_KEY = '__observable__';
+
+/**
+ * The [[ComputedObservable]] currently being created and evaluated.
+ *
+ * This property is globally unique because only one [[ComputedObservable]] can be evaluated at a time.
+ */
+let currentEvaluatingObservable: ComputedObservable<unknown> | undefined;
 
 /**
  * Takes a data object and recursively makes all its properties reactive.
@@ -59,17 +84,17 @@ export function observe<T extends object>(data: T): ObservedData<T> {
  * Iterate over a data object and make all its properties reactive.
  *
  * @param data - Data object.
- * @param observable - Observable for the data object
+ * @param observable - Optional observable for the data object.
  *
  * @typeparam T - Any object type: array, object, class etc.
  */
-export function observeObject<T extends object>(data: T, observable?: IObservable<T>): void {
+export function observeObject<T extends object>(data: T, observable?: Observable<T>): void {
   if (isObject(data)) {
     // make properties reactive
     const keys = Object.keys(data);
     for (let i = 0; i < keys.length; i++) {
       const value = data[keys[i] as keyof typeof data];
-      let valueObservable: IObservable<typeof value> | IComputedObservable<typeof value>;
+      let valueObservable: Observable<typeof value> | ComputedObservable<typeof value>;
 
       if (typeof value === 'function') {
         valueObservable = new ComputedObservable(value.bind(data));
@@ -80,10 +105,10 @@ export function observeObject<T extends object>(data: T, observable?: IObservabl
       } else {
         valueObservable = new Observable(value);
 
-        observeObject((value as unknown) as T, (valueObservable as unknown) as IObservable<T>);
+        observeObject((value as unknown) as T, (valueObservable as unknown) as Observable<T>);
       }
 
-      defineReactiveProperty(data, keys[i], valueObservable);
+      defineReactiveProperty(data, keys[i], valueObservable as Observable<typeof value>);
     }
 
     /**
@@ -126,8 +151,9 @@ export function observeObject<T extends object>(data: T, observable?: IObservabl
 export function defineReactiveProperty<T>(
   obj: object,
   key: string | number,
-  observable: IObservable<T>,
+  observable: Observable<T>,
 ): void {
+  // cater for user defined getters
   const descriptor = Object.getOwnPropertyDescriptor(obj, key);
   const getter = descriptor && descriptor.get ? descriptor.get.bind(obj) : undefined;
   const setter = descriptor && descriptor.set ? descriptor.set.bind(obj) : undefined;
@@ -149,7 +175,7 @@ export function defineReactiveProperty<T>(
         setter && setter(value);
         value = getter ? getter() : value;
         if (observable.value !== value) {
-          observeObject((value as unknown) as object, (observable as unknown) as IObservable<object>);
+          observeObject((value as unknown) as object, (observable as unknown) as Observable<object>);
           observable.update(value);
         }
       },
@@ -168,7 +194,7 @@ export function defineReactiveProperty<T>(
 export function extractObservableFromProperty(
   object: object,
   key: string | number,
-): IObservable<unknown> | undefined {
+): Observable<unknown> | undefined {
   const descriptor = Object.getOwnPropertyDescriptor(object, key);
   return descriptor && descriptor.get ? (descriptor.get as Function)(true) : undefined;
 }
@@ -188,7 +214,7 @@ function modifyPropertyWatcherList<T extends object, U>(
   operation: 'add' | 'remove',
 ): void {
   navigateToPropertyPath(observedData, path, (obj, property): void => {
-    const observable = extractObservableFromProperty(obj, property) as IObservable<U>;
+    const observable = extractObservableFromProperty(obj, property) as Observable<U>;
 
     if (observable) {
       if (operation === 'add') {

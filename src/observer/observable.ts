@@ -1,6 +1,12 @@
 import { logError } from '../util';
 import ComputedObservable from './computed-observable';
-import { IObservable, WatcherFunction } from './types';
+
+/**
+ * [[Observable]] data change event callback signature.
+ *
+ * @typeparam T - Any valid javascript type.
+ */
+export type WatcherFunction<T> = (value: T | undefined, oldValue: T | undefined) => void;
 
 /**
  * Exception thrown when a [[WatcherFunction]] invocation causes an error.
@@ -10,12 +16,12 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
 /**
  * A [[Observable]] is a value that can be observed for changes.
  *
- * This observation can happen in two forms: Watchers and Observers.
+ * This observation can happen using 2 mechanisms: Watchers and Observers.
  *
  * ### Watchers
  * Watchers are simple functions that get called when the observable value changes.
  *
- * They receives the new and old value of the observable as arguments.
+ * They receive the new and old value of the observable as arguments.
  * ```typescript
  * const observable = new Observable(20);
  *
@@ -27,9 +33,9 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
  * ```
  *
  * ### Observers
- * Observers are [[ComputedObservable]]s.
+ * Observers are [[ComputedObservable]]s that use other [[Observable]]s to determine their values.
  *
- * When the observable changes then the observers are updated.
+ * When the observable changes then observers are updated.
  * ```typescript
  * const observable = new Observable(20);
  * const computedObservable = new ComputedObservable(() => observable.value * 2);
@@ -47,7 +53,7 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
  *
  * @typeparam T - Any valid javascript value.
  */
-class Observable<T> implements IObservable<T> {
+export default class Observable<T> {
   /**
    * Current value of the observable.
    */
@@ -138,5 +144,3 @@ class Observable<T> implements IObservable<T> {
     }
   }
 }
-
-export default Observable;

@@ -1,6 +1,6 @@
 import { arrayMethods } from './array';
 import Observable from './observable';
-import { ATTACHED_OBSERVABLE_KEY } from './types';
+import { ATTACHED_OBSERVABLE_KEY } from '.';
 
 describe('Array observer helper functionality', () => {
   describe('arrayMethods', () => {

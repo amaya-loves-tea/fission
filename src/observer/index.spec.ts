@@ -1,14 +1,14 @@
 import {
+  extractObservableFromProperty,
   addPropertyWatcher,
   defineReactiveProperty,
-  extractObservableFromProperty,
   observe,
   removePropertyWatcher,
+  ATTACHED_OBSERVABLE_KEY,
 } from '.';
 import { arrayMethods } from './array';
 import ComputedObservable from './computed-observable';
 import Observable from './observable';
-import { ATTACHED_OBSERVABLE_KEY } from './types';
 import { isObject, prototypeAugment } from '../util';
 
 describe('observer functions', () => {
