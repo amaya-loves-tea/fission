@@ -47,6 +47,41 @@ export const ATTACHED_OBSERVABLE_KEY = '__observable__';
  */
 let currentEvaluatingObservable: ComputedObservable<unknown> | undefined;
 
+export enum ObserverState {
+  Disabled,
+  Lazy,
+  Enabled,
+}
+interface ObserverQueueItem {
+  func: Function;
+  args: any[];
+  context?: object;
+}
+export let observerState: ObserverState = ObserverState.Enabled;
+export function setObserverState(state: ObserverState): void {
+  if (state !== observerState && state in ObserverState) {
+    observerState = state;
+  }
+}
+const observerQueue: ObserverQueueItem[] = [];
+export function addObserverQueueItem(item: ObserverQueueItem): void {
+  observerQueue.push(item);
+}
+export function processObserverQueue(): void {
+  const currentObserverState = observerState;
+  setObserverState(ObserverState.Enabled);
+  let item: ObserverQueueItem;
+  while (observerQueue.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    item = observerQueue.shift()!;
+    item.func.apply(item.context, item.args);
+  }
+  setObserverState(currentObserverState);
+}
+export function purgeObserverQueue(): void {
+  observerQueue.length = 0;
+}
+
 /**
  * Takes a data object and recursively makes all its properties reactive.
  *
@@ -172,11 +207,19 @@ export function defineReactiveProperty<T>(
     set: observable instanceof ComputedObservable ? 
       undefined : 
       function reactiveSetter(value: T): void {
-        setter && setter(value);
-        value = getter ? getter() : value;
-        if (observable.value !== value) {
-          observeObject((value as unknown) as object, (observable as unknown) as Observable<object>);
-          observable.update(value);
+        if (observerState === ObserverState.Enabled) {
+          setter && setter(value);
+          value = getter ? getter() : value;
+          if (observable.value !== value) {
+            observeObject((value as unknown) as object, (observable as unknown) as Observable<object>);
+            observable.update(value);
+          }
+        }
+        else if (observerState === ObserverState.Lazy) {
+          addObserverQueueItem({ func: reactiveSetter, args: [value] });
+        }
+        else {
+          throw new Error('Cannot assign to a observed property when reactivity is disabled.');
         }
       },
     enumerable: true,

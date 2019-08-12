@@ -1,5 +1,6 @@
 import { logError } from '../util';
 import Observable from './observable';
+import { setObserverState, ObserverState } from '.';
 
 /**
  * Function signature for a [[ComputedObservable]].
@@ -43,9 +44,12 @@ export default class ComputedObservable<T> extends Observable<unknown> {
    */
   public evaluate(): T | undefined {
     try {
+      setObserverState(ObserverState.Disabled);
       return this._computedFunction();
     } catch (exception) {
       logError(COMPUTED_FUNCTION_EXCEPTION, exception);
+    } finally {
+      setObserverState(ObserverState.Enabled);
     }
     return undefined;
   }

@@ -2,7 +2,14 @@
  * Helper functionality for array observables.
  */
 /** @ignore */
-import { defineReactiveProperty, observeObject, ATTACHED_OBSERVABLE_KEY } from '.';
+import {
+  defineReactiveProperty,
+  observeObject,
+  ATTACHED_OBSERVABLE_KEY,
+  observerState,
+  ObserverState,
+  addObserverQueueItem,
+} from '.';
 import Observable from './observable';
 
 /**
@@ -19,27 +26,34 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
 
   // Make the current iterator method a mutator function
   Object.defineProperty(arrayMethods, method, {
-    value: function mutator<T extends T[], U>(this: T): U {
-      const result = original.apply(this, arguments) as U;
-      const observable = (this as any)[ATTACHED_OBSERVABLE_KEY];
+    value: function mutator<T extends T[], U>(this: T): U | undefined {
+      if (observerState === ObserverState.Enabled) {
+        const result = original.apply(this, arguments) as U;
+        const observable = (this as any)[ATTACHED_OBSERVABLE_KEY];
 
-      switch (method) {
-        // Purpose fall through since both methods use the same logic
-        case 'push':
-        case 'unshift':
-          observeArrayItems(this, this.length - arguments.length, this.length);
-          break;
-        case 'splice':
-          // eslint-disable-next-line no-case-declarations
-          let insertedAmount = arguments.length - arguments[1];
-          insertedAmount = insertedAmount < 0 ? 0 : insertedAmount;
-          observeArrayItems(this, this.length - insertedAmount, this.length);
-          break;
+        switch (method) {
+          // Purpose fall through since both methods use the same logic
+          case 'push':
+          case 'unshift':
+            observeArrayItems(this, this.length - arguments.length, this.length);
+            break;
+          case 'splice':
+            // eslint-disable-next-line no-case-declarations
+            let insertedAmount = arguments.length - arguments[1];
+            insertedAmount = insertedAmount < 0 ? 0 : insertedAmount;
+            observeArrayItems(this, this.length - insertedAmount, this.length);
+            break;
+        }
+
+        observable.update(this);
+
+        return result;
+      } else if (observerState === ObserverState.Lazy) {
+        addObserverQueueItem({ context: this, func: mutator, args: Array.from(arguments) });
+      } else {
+        throw new Error('Cannot assign to a observed property when reactivity is disabled.');
       }
-
-      observable.update(this);
-
-      return result;
+      return undefined;
     },
   });
 });
