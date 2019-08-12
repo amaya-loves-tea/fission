@@ -1,5 +1,4 @@
-import { isObject } from 'util';
-import { isPlainObject, prototypeAugment } from '../../src/util';
+import { isObject, isPlainObject, prototypeAugment, navigateToPropertyPath } from './object';
 
 describe('object utility functions', () => {
   class TestClass {
@@ -84,6 +83,52 @@ describe('object utility functions', () => {
       expect(isPlainObject({ property: 'test' })).toBe(true);
       expect(isPlainObject(new TestClass(66))).toBe(false);
       expect(isPlainObject([])).toBe(false);
+    });
+  });
+
+  describe('navigateToPropertyPath', () => {
+    it('calls a callback when it finds the property from the specified path', () => {
+      const obj = {
+        prop: 55,
+        nested: {
+          nestedAgain: {
+            prop: 50,
+          },
+        },
+      };
+
+      const spy = jest.fn();
+      navigateToPropertyPath(obj, 'nested.nestedAgain.prop', spy);
+
+      expect(spy).toBeCalledTimes(1);
+      expect(spy).toBeCalledWith(obj.nested.nestedAgain, 'prop');
+    });
+
+    it('is able to navigate into array properties', () => {
+      const object = {
+        nested: {
+          array: [{ name: 'test' }, { name: 'anotherTest' }],
+        },
+      };
+
+      navigateToPropertyPath(object, 'nested.array.0.name', (obj, key) => {
+        expect(obj).toHaveProperty(key);
+        expect(obj[key as keyof object]).toBe('test');
+      });
+    });
+
+    it('throws an error if it cannot find the property', () => {
+      const obj = {
+        prop: 55,
+        nested: {
+          nestedAgain: {
+            prop: 50,
+          },
+        },
+      };
+      expect(() => navigateToPropertyPath(obj, 'nested.nestedAgain.props', jest.fn())).toThrowError(
+        `Object does not contain the property with path 'nested.nestedAgain.props'`,
+      );
     });
   });
 });

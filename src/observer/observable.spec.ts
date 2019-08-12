@@ -1,5 +1,5 @@
 import consoleReference from 'console';
-import Observable from '../../src/observer/observable';
+import Observable from './observable';
 import ComputedObservable from './computed-observable';
 
 global.console = consoleReference;

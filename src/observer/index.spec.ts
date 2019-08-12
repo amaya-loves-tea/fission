@@ -2,14 +2,13 @@ import {
   addPropertyWatcher,
   defineReactiveProperty,
   extractObservableFromProperty,
-  navigateToPropertyPath,
   observe,
   removePropertyWatcher,
-} from '../observer';
-import { arrayMethods } from '../observer/array';
-import ComputedObservable from '../observer/computed-observable';
-import Observable from '../observer/observable';
-import { ATTACHED_OBSERVABLE_KEY } from '../observer/types';
+} from '.';
+import { arrayMethods } from './array';
+import ComputedObservable from './computed-observable';
+import Observable from './observable';
+import { ATTACHED_OBSERVABLE_KEY } from './types';
 import { isObject, prototypeAugment } from '../util';
 
 describe('observer functions', () => {
@@ -472,9 +471,11 @@ describe('observer functions', () => {
 
         const observed = observe({ array: initialArray });
 
-        const observableArray = extractObservableFromProperty(observed, 'array');
+        const observableArray = extractObservableFromProperty(observed, 'array') as Observable<
+          any[]
+        >;
 
-        if (observableArray) {
+        if (observableArray && observableArray.value) {
           observableArray.update = jest.fn(observableArray.update);
 
           // Function is mutator function
@@ -669,52 +670,6 @@ describe('observer functions', () => {
           fail('array is not observable');
         }
       });
-    });
-  });
-
-  describe('navigateToPropertyPath', () => {
-    it('calls a callback when it finds the property from the specified path', () => {
-      const obj = {
-        prop: 55,
-        nested: {
-          nestedAgain: {
-            prop: 50,
-          },
-        },
-      };
-
-      const spy = jest.fn();
-      navigateToPropertyPath(obj, 'nested.nestedAgain.prop', spy);
-
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(obj.nested.nestedAgain, 'prop');
-    });
-
-    it('is able to navigate into array properties', () => {
-      const object = {
-        nested: {
-          array: [{ name: 'test' }, { name: 'anotherTest' }],
-        },
-      };
-
-      navigateToPropertyPath(object, 'nested.array.0.name', (obj, key) => {
-        expect(obj).toHaveProperty(key);
-        expect(obj[key as keyof object]).toBe('test');
-      });
-    });
-
-    it('throws an error if it cannot find the property', () => {
-      const obj = {
-        prop: 55,
-        nested: {
-          nestedAgain: {
-            prop: 50,
-          },
-        },
-      };
-      expect(() => navigateToPropertyPath(obj, 'nested.nestedAgain.props', jest.fn())).toThrowError(
-        `Object does not contain the property with path 'nested.nestedAgain.props'`,
-      );
     });
   });
 

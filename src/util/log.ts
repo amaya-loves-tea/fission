@@ -5,7 +5,7 @@
  * @param exception - Exception.
  */
 export function logError(message: string, exception: Error): void {
-  console.error(`[Reactive State Error]: ${message}\n${exception.stack}`);
+  console.error(`[Reactivity Error]: ${message}\n${exception.stack}`);
 }
 
 /**
@@ -14,5 +14,5 @@ export function logError(message: string, exception: Error): void {
  * @param message - Warning message.
  */
 export function logWarning(message: string): void {
-  console.warn(`[Reactive State Warning]: ${message}`);
+  console.warn(`[Reactivity Warning]: ${message}`);
 }

@@ -1,6 +1,6 @@
 import mockConsole from 'console';
-import ComputedObservable from '../../src/observer/computed-observable';
-import Observable from '../../src/observer/observable';
+import ComputedObservable from './computed-observable';
+import Observable from './observable';
 
 global.console = mockConsole;
 mockConsole.error = jest.fn();

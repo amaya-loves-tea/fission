@@ -1,5 +1,5 @@
 import consoleReference from 'console';
-import { logError, logWarning } from '../../src/util';
+import { logError, logWarning } from './log';
 
 global.console = consoleReference;
 const errorOutput = consoleReference.error;
