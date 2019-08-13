@@ -1,17 +1,17 @@
-import {
-  extractObservableFromProperty,
-  addPropertyWatcher,
-  defineReactiveProperty,
-  observe,
-  removePropertyWatcher,
-  ATTACHED_OBSERVABLE_KEY,
-} from '.';
-import { arrayMethods } from './array';
-import ComputedObservable from './computed-observable';
 import Observable from './observable';
-import { isObject, prototypeAugment } from '../util';
+import { defineReactiveProperty, ATTACHED_OBSERVABLE_KEY, observe } from './observer';
+import ComputedObservable from './computed-observable';
+import { prototypeAugment, isObject } from '../util';
+import { arrayMethods } from './array';
+import { extractObservableFromProperty } from './observer';
+import {
+  setObserverState,
+  ObserverState,
+  OBSERVER_STATE_DISABLED_EXCEPTION,
+  processObserverQueue,
+} from './observer-state';
 
-describe('observer functions', () => {
+describe('observer', () => {
   describe('defineReactiveProperty', () => {
     describe('creates a reactive property', () => {
       it('has the same value as the observable', () => {
@@ -117,190 +117,217 @@ describe('observer functions', () => {
       });
 
       describe('property setter functionality', () => {
-        it('calls the observable update function when you change the value', () => {
-          const data = createTestObject();
-          const observables: Observable<any>[] = [];
+        describe('observerState - enabled', () => {
+          it('calls the observable update function when you change the value', () => {
+            const data = createTestObject();
+            const observables: Observable<any>[] = [];
 
-          const keys = Object.keys(data);
-          for (const key of keys) {
-            const value = data[key as keyof typeof data];
-            const observable = new Observable(value);
-            observable.update = jest.fn(observable.update);
-            observables.push(observable);
+            const keys = Object.keys(data);
+            for (const key of keys) {
+              const value = data[key as keyof typeof data];
+              const observable = new Observable(value);
+              observable.update = jest.fn(observable.update);
+              observables.push(observable);
 
-            defineReactiveProperty(data, key, observable);
-          }
+              defineReactiveProperty(data, key, observable);
+            }
 
-          data.number = 10;
-          data.string = 'new';
-          data.boolean = true;
+            data.number = 10;
+            data.string = 'new';
+            data.boolean = true;
 
-          data.nestedObject.key = 'new keys';
-          data.nestedObject.array[0] = 9;
-          data.nestedObject.array[1] = 15;
-          data.nestedObject.array = [10001, 10002];
-          ((data.nestedObject as any) = { name: 'test' }), (data.array[0] = 99);
-          (data.array[1] as any)[0] = 22;
-          (data.array[1] as any)[1] = 23;
-          (data.array[1] as any) = ['new', 'type'];
-          (data.array[2] as any).name = 'you';
-          (data.array[2] as any) = { key: 'ooo' };
+            data.nestedObject.key = 'new keys';
+            data.nestedObject.array[0] = 9;
+            data.nestedObject.array[1] = 15;
+            data.nestedObject.array = [10001, 10002];
+            ((data.nestedObject as any) = { name: 'test' }), (data.array[0] = 99);
+            (data.array[1] as any)[0] = 22;
+            (data.array[1] as any)[1] = 23;
+            (data.array[1] as any) = ['new', 'type'];
+            (data.array[2] as any).name = 'you';
+            (data.array[2] as any) = { key: 'ooo' };
 
-          (data.array as any) = ['hello', 'world', '!'];
-          data.getter = 9;
-          (data.method as any) = function() {
-            return {};
-          };
+            (data.array as any) = ['hello', 'world', '!'];
+            data.getter = 9;
+            (data.method as any) = function() {
+              return {};
+            };
 
-          for (const observable of observables) {
-            expect(observable.update).toBeCalledTimes(1);
-          }
-        });
-
-        it('does not call the observable update function when you change the value to the current value ', () => {
-          const data = createTestObject();
-          const observables: Observable<any>[] = [];
-
-          const keys = Object.keys(data);
-          for (const key of keys) {
-            const value = data[key as keyof typeof data];
-            const observable = new Observable(value);
-            observable.update = jest.fn(observable.update);
-            observables.push(observable);
-
-            defineReactiveProperty(data, key, observable);
-          }
-
-          // Primitives
-          data.number = 5;
-          data.getter = 2.5;
-          data.string = 'test';
-          data.boolean = false;
-          data.array[0] = 1;
-          (data.array[1] as any)[0] = 2;
-          (data.array[1] as any)[1] = 3;
-          (data.array[2] as any).name = 'name';
-          data.nestedObject.key = 'value';
-          data.nestedObject.array[0] = 5;
-          data.nestedObject.array[1] = 6;
-
-          /**
-           * Objects & Methods
-           *
-           * These are reference types so you can only get this test to succeed if you reassign the same reference.
-           *
-           * As an example the following will not work
-           * ```typescript
-           * observed.nestedObject = { key: 'value' };
-           * observed.array = [1, [2, 3], {name: 'name'}];
-           * observed.method = function method() { return this.nestedObject; };
-           * ```
-           */
-
-          /* eslint-disable no-self-assign */
-          data.nestedObject.array = data.nestedObject.array;
-          data.nestedObject = data.nestedObject;
-          data.array[1] = data.array[1];
-          data.array[2] = data.array[2];
-          data.array = data.array;
-          data.method = data.method;
-          /* eslint-enable no-self-assign */
-
-          for (const observable of observables) {
-            expect(observable.update).not.toBeCalled();
-          }
-        });
-
-        it('observes the changed value and its properties if the changed value is an object', () => {
-          const target: any = {};
-          defineReactiveProperty(target, 'nestedObject', new Observable({}));
-          defineReactiveProperty(target.nestedObject, 'name', new Observable('test'));
-          defineReactiveProperty(target.nestedObject, 'number', new Observable(7));
-          defineReactiveProperty(target.nestedObject, 'boolean', new Observable(true));
-
-          expect(target).toEqual({
-            nestedObject: {
-              name: 'test',
-              number: 7,
-              boolean: true,
-            },
+            for (const observable of observables) {
+              expect(observable.update).toBeCalledTimes(1);
+            }
           });
 
-          validateObjectObserved(target);
+          it('does not call the observable update function when you change the value to the current value ', () => {
+            const data = createTestObject();
+            const observables: Observable<any>[] = [];
 
-          target.nestedObject = { key: 99 };
+            const keys = Object.keys(data);
+            for (const key of keys) {
+              const value = data[key as keyof typeof data];
+              const observable = new Observable(value);
+              observable.update = jest.fn(observable.update);
+              observables.push(observable);
 
-          validateObjectObserved(target);
+              defineReactiveProperty(data, key, observable);
+            }
 
-          expect(target).toEqual({ nestedObject: { key: 99 } });
-        });
+            // Primitives
+            data.number = 5;
+            data.getter = 2.5;
+            data.string = 'test';
+            data.boolean = false;
+            data.array[0] = 1;
+            (data.array[1] as any)[0] = 2;
+            (data.array[1] as any)[1] = 3;
+            (data.array[2] as any).name = 'name';
+            data.nestedObject.key = 'value';
+            data.nestedObject.array[0] = 5;
+            data.nestedObject.array[1] = 6;
 
-        it('observes the changed value and its children if the changed value is an array', () => {
-          const target: any = {};
-          defineReactiveProperty(target, 'array', new Observable([]));
-          prototypeAugment(target.array, arrayMethods);
-          Object.defineProperty(target.array, ATTACHED_OBSERVABLE_KEY, {
-            value: new Observable(undefined),
+            /**
+             * Objects & Methods
+             *
+             * These are reference types so you can only get this test to succeed if you reassign the same reference.
+             *
+             * As an example the following will not work
+             * ```typescript
+             * observed.nestedObject = { key: 'value' };
+             * observed.array = [1, [2, 3], {name: 'name'}];
+             * observed.method = function method() { return this.nestedObject; };
+             * ```
+             */
+
+            /* eslint-disable no-self-assign */
+            data.nestedObject.array = data.nestedObject.array;
+            data.nestedObject = data.nestedObject;
+            data.array[1] = data.array[1];
+            data.array[2] = data.array[2];
+            data.array = data.array;
+            data.method = data.method;
+            /* eslint-enable no-self-assign */
+
+            for (const observable of observables) {
+              expect(observable.update).not.toBeCalled();
+            }
           });
 
-          defineReactiveProperty(target.array, 0, new Observable(1));
+          it('observes the changed value and its properties if the changed value is an object', () => {
+            const target: any = {};
+            defineReactiveProperty(target, 'nestedObject', new Observable({}));
+            defineReactiveProperty(target.nestedObject, 'name', new Observable('test'));
+            defineReactiveProperty(target.nestedObject, 'number', new Observable(7));
+            defineReactiveProperty(target.nestedObject, 'boolean', new Observable(true));
 
-          defineReactiveProperty(target.array, 1, new Observable([]));
-          prototypeAugment(target.array[1], arrayMethods);
-          Object.defineProperty(target.array[1], ATTACHED_OBSERVABLE_KEY, {
-            value: new Observable(undefined),
+            expect(target).toEqual({
+              nestedObject: {
+                name: 'test',
+                number: 7,
+                boolean: true,
+              },
+            });
+
+            validateObjectObserved(target);
+
+            target.nestedObject = { key: 99 };
+
+            validateObjectObserved(target);
+
+            expect(target).toEqual({ nestedObject: { key: 99 } });
           });
 
-          defineReactiveProperty(target.array[1], 0, new Observable(true));
-          defineReactiveProperty(target.array[1], 1, new Observable(false));
+          it('observes the changed value and its children if the changed value is an array', () => {
+            const target: any = {};
+            defineReactiveProperty(target, 'array', new Observable([]));
+            prototypeAugment(target.array, arrayMethods);
+            Object.defineProperty(target.array, ATTACHED_OBSERVABLE_KEY, {
+              value: new Observable(undefined),
+            });
 
-          defineReactiveProperty(target.array, 2, new Observable([]));
-          prototypeAugment(target.array[2], arrayMethods);
-          Object.defineProperty(target.array[2], ATTACHED_OBSERVABLE_KEY, {
-            value: new Observable(undefined),
-          });
+            defineReactiveProperty(target.array, 0, new Observable(1));
 
-          defineReactiveProperty(target.array[2], 0, new Observable({}));
-          defineReactiveProperty(target.array[2], 1, new Observable({}));
-          defineReactiveProperty(target.array[2], 2, new Observable({}));
-          defineReactiveProperty(target.array[2][0], 'name', new Observable('larry'));
-          defineReactiveProperty(target.array[2][1], 'name', new Observable('moe'));
-          defineReactiveProperty(target.array[2][2], 'name', new Observable('curly'));
+            defineReactiveProperty(target.array, 1, new Observable([]));
+            prototypeAugment(target.array[1], arrayMethods);
+            Object.defineProperty(target.array[1], ATTACHED_OBSERVABLE_KEY, {
+              value: new Observable(undefined),
+            });
 
-          expect(target).toEqual({
-            array: [1, [true, false], [{ name: 'larry' }, { name: 'moe' }, { name: 'curly' }]],
-          });
+            defineReactiveProperty(target.array[1], 0, new Observable(true));
+            defineReactiveProperty(target.array[1], 1, new Observable(false));
 
-          validateObjectObserved(target);
+            defineReactiveProperty(target.array, 2, new Observable([]));
+            prototypeAugment(target.array[2], arrayMethods);
+            Object.defineProperty(target.array[2], ATTACHED_OBSERVABLE_KEY, {
+              value: new Observable(undefined),
+            });
 
-          target.array = [
-            'test',
-            [[1, 2], [true, true]],
-            [{ message: 'hi' }, { message: 'go' }, { message: 'there' }],
-          ];
+            defineReactiveProperty(target.array[2], 0, new Observable({}));
+            defineReactiveProperty(target.array[2], 1, new Observable({}));
+            defineReactiveProperty(target.array[2], 2, new Observable({}));
+            defineReactiveProperty(target.array[2][0], 'name', new Observable('larry'));
+            defineReactiveProperty(target.array[2][1], 'name', new Observable('moe'));
+            defineReactiveProperty(target.array[2][2], 'name', new Observable('curly'));
 
-          expect(target).toEqual({
-            array: [
+            expect(target).toEqual({
+              array: [1, [true, false], [{ name: 'larry' }, { name: 'moe' }, { name: 'curly' }]],
+            });
+
+            validateObjectObserved(target);
+
+            target.array = [
               'test',
               [[1, 2], [true, true]],
               [{ message: 'hi' }, { message: 'go' }, { message: 'there' }],
-            ],
+            ];
+
+            expect(target).toEqual({
+              array: [
+                'test',
+                [[1, 2], [true, true]],
+                [{ message: 'hi' }, { message: 'go' }, { message: 'there' }],
+              ],
+            });
+
+            validateObjectObserved(target);
           });
 
-          validateObjectObserved(target);
+          it('doest not create a setter if the observable passed in is a computed observable instance', () => {
+            const target: any = {};
+            const observable = new ComputedObservable(() => 67);
+            observable.update(observable.evaluate());
+            defineReactiveProperty(target, 'total', observable);
+
+            expect(target.total).toBe(67);
+
+            expect(() => {
+              target.total = 55;
+            }).toThrowError('Cannot set property total of #<Object> which has only a getter');
+          });
         });
 
-        it('doest not create a setter if the observable passed in is a computed observable instance', () => {
-          const target: any = {};
-          const observable = new ComputedObservable(() => 67);
-          observable.update(observable.evaluate());
-          defineReactiveProperty(target, 'total', observable);
+        describe('observerState - disabled', () => {
+          it('throws an error', () => {
+            const target: any = {};
+            defineReactiveProperty(target, 'number', new Observable(78));
+            setObserverState(ObserverState.Disabled);
+            expect(() => (target.number = 100)).toThrowError(OBSERVER_STATE_DISABLED_EXCEPTION);
+            setObserverState(ObserverState.Enabled);
+          });
+        });
 
-          expect(target.total).toBe(67);
-
-          expect(() => {
-            target.total = 55;
-          }).toThrowError('Cannot set property total of #<Object> which has only a getter');
+        describe('observerState - lazy', () => {
+          it('collects data change events in the observerQueue', () => {
+            const target: any = {};
+            const observable = new Observable('test');
+            observable.update = jest.fn(observable.update);
+            defineReactiveProperty(target, 'string', observable);
+            setObserverState(ObserverState.Lazy);
+            target.string = 'new string';
+            expect(observable.update).toBeCalledTimes(0);
+            processObserverQueue();
+            expect(observable.update).toBeCalledTimes(1);
+            setObserverState(ObserverState.Enabled);
+          });
         });
       });
     });
@@ -309,27 +336,6 @@ describe('observer functions', () => {
       expect(() =>
         defineReactiveProperty('test' as any, 'invalid', new Observable(5)),
       ).toThrowError('Object.defineProperty called on non-object');
-    });
-  });
-
-  describe('extractObservableFromProperty', () => {
-    it('returns the observable instance for a reactive property', () => {
-      const target: any = {};
-
-      defineReactiveProperty(target, 'key', new Observable(55));
-
-      const observable = extractObservableFromProperty(target, 'key');
-
-      expect(observable).toBeDefined();
-      expect(observable).toBeInstanceOf(Observable);
-    });
-
-    it('returns undefined if this is not a reactive property', () => {
-      const target = { name: 'test' };
-
-      const observable = extractObservableFromProperty(target, 'name');
-
-      expect(observable).toBeUndefined();
     });
   });
 
@@ -673,119 +679,29 @@ describe('observer functions', () => {
     });
   });
 
-  describe('addPropertyWatcher', () => {
-    it('adds a watcher from a property on an observed object', () => {
-      const observed = observe(createTestObject());
+  describe('extractObservableFromProperty', () => {
+    it('returns the observable instance for a reactive property', () => {
+      const target: any = {};
 
-      const simpleWatcher = addPropertyWatcher(observed, 'number', jest.fn());
-      const arrayWatcher = addPropertyWatcher(observed, 'array.0', jest.fn());
-      const nestedWatcher = addPropertyWatcher(observed, 'nestedObject.key', jest.fn());
+      defineReactiveProperty(target, 'key', new Observable(55));
 
-      observed.number = 50;
-      observed.array[0] = 99;
-      observed.nestedObject.key = 'new_value';
+      const observable = extractObservableFromProperty(target, 'key');
 
-      expect(simpleWatcher).toBeCalledTimes(1);
-      expect(simpleWatcher).toBeCalledWith(50, 5);
-
-      expect(arrayWatcher).toBeCalledTimes(1);
-      expect(arrayWatcher).toBeCalledWith(99, 1);
-
-      expect(nestedWatcher).toBeCalledTimes(1);
-      expect(nestedWatcher).toBeCalledWith('new_value', 'value');
+      expect(observable).toBeDefined();
+      expect(observable).toBeInstanceOf(Observable);
     });
 
-    it('throws an error when the property is not observable', () => {
-      const notObserved = {
-        price: 55,
-        qty: 20,
-      };
+    it('returns undefined if this is not a reactive property', () => {
+      const target = { name: 'test' };
 
-      expect(() => {
-        addPropertyWatcher(notObserved, 'price', value => console.log(value));
-      }).toThrowError(new Error('Property is not observable.'));
-    });
-  });
+      const observable = extractObservableFromProperty(target, 'name');
 
-  describe('removePropertyWatcher', () => {
-    it('removes a watcher from a property on an observed object', () => {
-      const observed = observe(createTestObject());
-
-      const simpleWatcher = jest.fn();
-      const arrayWatcher = jest.fn();
-      const nestedWatcher = jest.fn();
-
-      addPropertyWatcher(observed, 'number', simpleWatcher);
-      addPropertyWatcher(observed, 'array.0', arrayWatcher);
-      addPropertyWatcher(observed, 'nestedObject.key', nestedWatcher);
-
-      observed.number = 50;
-      observed.array[0] = 99;
-      observed.nestedObject.key = 'new_value';
-
-      expect(simpleWatcher).toBeCalledTimes(1);
-      expect(simpleWatcher).toBeCalledWith(50, 5);
-
-      expect(arrayWatcher).toBeCalledTimes(1);
-      expect(arrayWatcher).toBeCalledWith(99, 1);
-
-      expect(nestedWatcher).toBeCalledTimes(1);
-      expect(nestedWatcher).toBeCalledWith('new_value', 'value');
-
-      removePropertyWatcher(observed, 'number', simpleWatcher);
-      removePropertyWatcher(observed, 'array.0', arrayWatcher);
-      removePropertyWatcher(observed, 'nestedObject.key', nestedWatcher);
-
-      simpleWatcher.mockClear();
-      arrayWatcher.mockClear();
-      nestedWatcher.mockClear();
-
-      observed.number = 10;
-      observed.array[0] = 20;
-      observed.nestedObject.key = 'old_value';
-
-      expect(simpleWatcher).toBeCalledTimes(0);
-      expect(arrayWatcher).toBeCalledTimes(0);
-      expect(nestedWatcher).toBeCalledTimes(0);
-    });
-
-    it('throws an error when the property is not observable', () => {
-      const notObserved = {
-        price: 55,
-        qty: 20,
-      };
-
-      expect(() => {
-        removePropertyWatcher(notObserved, 'price', value => console.log(value));
-      }).toThrowError(new Error('Property is not observable.'));
+      expect(observable).toBeUndefined();
     });
   });
 });
 
 const SKIP_RECURSIVE_CHECK = 'SKIP_RECURSIVE_CHECK';
-
-/**
- * DO NOT CHANGE THIS DATA AS IT WILL INVALIDATE THE TESTS THAT DEPEND ON THEM
- */
-export function createTestObject() {
-  let getterValue = 5;
-  return {
-    number: 5,
-    string: 'test',
-    boolean: false,
-    nestedObject: { key: 'value', array: [5, 6] },
-    array: [1, [2, 3], { name: 'name' }],
-    get getter() {
-      return getterValue;
-    },
-    set getter(value: any) {
-      getterValue = value * 2;
-    },
-    method() {
-      return this.nestedObject;
-    },
-  };
-}
 
 export function validateObjectObserved(obj: object) {
   const keys = Object.keys(obj);
@@ -825,4 +741,27 @@ export function validatePropertyObserved(obj: object, key: string | number) {
   } else {
     fail(`Property ${key} is not observable`);
   }
+}
+
+/**
+ * DO NOT CHANGE THIS DATA AS IT WILL INVALIDATE THE TESTS THAT DEPEND ON THEM
+ */
+export function createTestObject() {
+  let getterValue = 5;
+  return {
+    number: 5,
+    string: 'test',
+    boolean: false,
+    nestedObject: { key: 'value', array: [5, 6] },
+    array: [1, [2, 3], { name: 'name' }],
+    get getter() {
+      return getterValue;
+    },
+    set getter(value: any) {
+      getterValue = value * 2;
+    },
+    method() {
+      return this.nestedObject;
+    },
+  };
 }

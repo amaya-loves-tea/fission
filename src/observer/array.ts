@@ -2,14 +2,13 @@
  * Helper functionality for array observables.
  */
 /** @ignore */
+import { defineReactiveProperty, observeObject, ATTACHED_OBSERVABLE_KEY } from './observer';
 import {
-  defineReactiveProperty,
-  observeObject,
-  ATTACHED_OBSERVABLE_KEY,
   observerState,
   ObserverState,
   addObserverQueueItem,
-} from '.';
+  OBSERVER_STATE_DISABLED_EXCEPTION,
+} from './observer-state';
 import Observable from './observable';
 
 /**
@@ -48,10 +47,10 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
         observable.update(this);
 
         return result;
-      } else if (observerState === ObserverState.Lazy) {
-        addObserverQueueItem({ context: this, func: mutator, args: Array.from(arguments) });
+      } else if (observerState === ObserverState.Disabled) {
+        throw new Error(OBSERVER_STATE_DISABLED_EXCEPTION);
       } else {
-        throw new Error('Cannot assign to a observed property when reactivity is disabled.');
+        addObserverQueueItem({ context: this, func: mutator, args: Array.from(arguments) });
       }
       return undefined;
     },

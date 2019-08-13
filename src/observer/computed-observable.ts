@@ -1,6 +1,6 @@
 import { logError } from '../util';
 import Observable from './observable';
-import { setObserverState, ObserverState } from '.';
+import { setObserverState, ObserverState } from './observer-state';
 
 /**
  * Function signature for a [[ComputedObservable]].
