@@ -3,6 +3,13 @@ import Observable from './observable';
 import { setObserverState, ObserverState } from './observer-state';
 
 /**
+ * The [[ComputedObservable]] currently being created and evaluated.
+ *
+ * This property is globally unique because only one [[ComputedObservable]] can be evaluated at a time.
+ */
+export let currentEvaluatingObservable: ComputedObservable<unknown> | undefined;
+
+/**
  * Function signature for a [[ComputedObservable]].
  *
  * @typeparam T - Any valid javascript type.
@@ -35,6 +42,9 @@ export default class ComputedObservable<T> extends Observable<unknown> {
   public constructor(computedFunction: ComputedFunction<T>) {
     super(undefined);
     this._computedFunction = computedFunction;
+    currentEvaluatingObservable = this;
+    this.value = this.evaluate();
+    currentEvaluatingObservable = undefined;
   }
 
   /**

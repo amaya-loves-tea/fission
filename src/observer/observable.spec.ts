@@ -223,9 +223,7 @@ describe('Observable', () => {
       const errorComputedFunction = jest.fn(() => {
         throw new Error('test');
       });
-      const mockObserver = new ComputedObservable(errorComputedFunction);
-
-      observable.observe(mockObserver);
+      new ComputedObservable(errorComputedFunction);
 
       observable.update('new string');
 

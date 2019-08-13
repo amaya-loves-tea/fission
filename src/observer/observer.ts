@@ -5,7 +5,7 @@
 /** @ignore */
 import { isObject, isPlainObject, prototypeAugment } from '../util';
 import { arrayMethods } from './array';
-import ComputedObservable from './computed-observable';
+import ComputedObservable, { currentEvaluatingObservable } from './computed-observable';
 import Observable from './observable';
 import {
   observerState,
@@ -45,13 +45,6 @@ type ObservedData<T> = {
  * Key used to attach an observable instance to an object.
  */
 export const ATTACHED_OBSERVABLE_KEY = '__observable__';
-
-/**
- * The [[ComputedObservable]] currently being created and evaluated.
- *
- * This property is globally unique because only one [[ComputedObservable]] can be evaluated at a time.
- */
-let currentEvaluatingObservable: ComputedObservable<unknown> | undefined;
 
 /**
  * Takes a data object and recursively makes all its properties reactive.
@@ -104,10 +97,6 @@ export function observeObject<T extends object>(data: T, observable?: Observable
 
       if (typeof value === 'function') {
         valueObservable = new ComputedObservable(value.bind(data));
-
-        currentEvaluatingObservable = valueObservable;
-        valueObservable.update(valueObservable.evaluate());
-        currentEvaluatingObservable = undefined;
       } else {
         valueObservable = new Observable(value);
 
