@@ -2,11 +2,11 @@ import { arrayMethods } from './array';
 import Observable from './observable';
 import { ATTACHED_OBSERVABLE_KEY } from './observer';
 import {
-  OBSERVER_STATE_DISABLED_EXCEPTION,
-  setObserverState,
-  ObserverState,
-  processObserverQueue,
-} from './observer-state';
+  REACTIVITY_DISABLED_EXCEPTION,
+  setReactivityState,
+  ReactivityState,
+  processReactivityQueue,
+} from './reactivity-state';
 
 describe('Array observer helper functionality', () => {
   describe('arrayMethods', () => {
@@ -81,47 +81,47 @@ describe('Array observer helper functionality', () => {
         expect((propertyDescriptors[7].get as any)(true)).toBeInstanceOf(Observable);
       });
 
-      it('throws an error when observer state is disabled', () => {
+      it('throws an error when reactivity state is disabled', () => {
         const array: any = ['hi', 'there', 'lad', '!'];
 
         const mockObservable = { update: jest.fn() };
 
         array[ATTACHED_OBSERVABLE_KEY] = mockObservable;
 
-        setObserverState(ObserverState.Disabled);
+        setReactivityState(ReactivityState.Disabled);
 
         patchedMethods.forEach(method => {
           if (method === 'sort') {
             expect(() => {
               (arrayMethods as any)[method].call(array, (x: number, y: number) => x - y);
-            }).toThrowError(OBSERVER_STATE_DISABLED_EXCEPTION);
+            }).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
           } else {
             expect(() => {
               (arrayMethods as any)[method].call(array, 9, 9);
-            }).toThrowError(OBSERVER_STATE_DISABLED_EXCEPTION);
+            }).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
           }
         });
 
-        setObserverState(ObserverState.Enabled);
+        setReactivityState(ReactivityState.Enabled);
       });
 
-      it('collects mutation method events when observer state is lazy', () => {
+      it('collects mutation method events when reactivity state is lazy', () => {
         const array: any = [1, 2, 3, 4];
 
         const mockObservable = { update: jest.fn() };
 
         array[ATTACHED_OBSERVABLE_KEY] = mockObservable;
 
-        setObserverState(ObserverState.Lazy);
+        setReactivityState(ReactivityState.Lazy);
 
         const mockMutatorMethod = jest.fn(arrayMethods.push);
         mockMutatorMethod.call(array, 55);
         expect(array.indexOf(55)).toBe(-1);
 
         // the mutation method event should now have been processed
-        processObserverQueue();
+        processReactivityQueue();
         expect(array.indexOf(55)).toBe(4);
-        setObserverState(ObserverState.Enabled);
+        setReactivityState(ReactivityState.Enabled);
       });
     });
   });

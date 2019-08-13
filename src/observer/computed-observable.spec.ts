@@ -1,7 +1,7 @@
 import mockConsole from 'console';
 import ComputedObservable from './computed-observable';
 import Observable from './observable';
-import { observerState, ObserverState } from './observer-state';
+import { reactivityState, ReactivityState } from './reactivity-state';
 
 global.console = mockConsole;
 mockConsole.error = jest.fn();
@@ -28,12 +28,12 @@ describe('Computed Observable', () => {
 
     it('sets observableState to disabled while running to prevent side effects', () => {
       const computed = new ComputedObservable(() => {
-        expect(observerState).toBe(ObserverState.Disabled);
+        expect(reactivityState).toBe(ReactivityState.Disabled);
         return `5 x 8 = ${5 * 8}`;
       });
-      expect(observerState).toBe(ObserverState.Enabled);
-      computed.evaluate(); // this line should disable observer state while running
-      expect(observerState).toBe(ObserverState.Enabled);
+      expect(reactivityState).toBe(ReactivityState.Enabled);
+      computed.evaluate(); // this line should disable reactivity state while running
+      expect(reactivityState).toBe(ReactivityState.Enabled);
     });
   });
 });

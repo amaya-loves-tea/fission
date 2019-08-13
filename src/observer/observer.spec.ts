@@ -5,11 +5,11 @@ import { prototypeAugment, isObject } from '../util';
 import { arrayMethods } from './array';
 import { extractObservableFromProperty } from './observer';
 import {
-  setObserverState,
-  ObserverState,
-  OBSERVER_STATE_DISABLED_EXCEPTION,
-  processObserverQueue,
-} from './observer-state';
+  setReactivityState,
+  ReactivityState,
+  REACTIVITY_DISABLED_EXCEPTION,
+  processReactivityQueue,
+} from './reactivity-state';
 
 describe('observer', () => {
   describe('defineReactiveProperty', () => {
@@ -117,7 +117,7 @@ describe('observer', () => {
       });
 
       describe('property setter functionality', () => {
-        describe('observerState - enabled', () => {
+        describe('reactivityState - enabled', () => {
           it('calls the observable update function when you change the value', () => {
             const data = createTestObject();
             const observables: Observable<any>[] = [];
@@ -305,28 +305,28 @@ describe('observer', () => {
           });
         });
 
-        describe('observerState - disabled', () => {
+        describe('reactivityState - disabled', () => {
           it('throws an error', () => {
             const target: any = {};
             defineReactiveProperty(target, 'number', new Observable(78));
-            setObserverState(ObserverState.Disabled);
-            expect(() => (target.number = 100)).toThrowError(OBSERVER_STATE_DISABLED_EXCEPTION);
-            setObserverState(ObserverState.Enabled);
+            setReactivityState(ReactivityState.Disabled);
+            expect(() => (target.number = 100)).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
+            setReactivityState(ReactivityState.Enabled);
           });
         });
 
-        describe('observerState - lazy', () => {
+        describe('reactivityState - lazy', () => {
           it('collects data change events in the observerQueue', () => {
             const target: any = {};
             const observable = new Observable('test');
             observable.update = jest.fn(observable.update);
             defineReactiveProperty(target, 'string', observable);
-            setObserverState(ObserverState.Lazy);
+            setReactivityState(ReactivityState.Lazy);
             target.string = 'new string';
             expect(observable.update).toBeCalledTimes(0);
-            processObserverQueue();
+            processReactivityQueue();
             expect(observable.update).toBeCalledTimes(1);
-            setObserverState(ObserverState.Enabled);
+            setReactivityState(ReactivityState.Enabled);
           });
         });
       });

@@ -1,6 +1,6 @@
 import { logError } from '../util';
 import Observable from './observable';
-import { setObserverState, ObserverState } from './observer-state';
+import { setReactivityState, ReactivityState, reactivityState } from './reactivity-state';
 
 /**
  * The [[ComputedObservable]] currently being created and evaluated.
@@ -53,13 +53,14 @@ export default class ComputedObservable<T> extends Observable<unknown> {
    * Observable updates are turned off to ensure computed observables have no side effects.
    */
   public evaluate(): T | undefined {
+    const currentReactivityState = reactivityState;
     try {
-      setObserverState(ObserverState.Disabled);
+      setReactivityState(ReactivityState.Disabled);
       return this._computedFunction();
     } catch (exception) {
       logError(COMPUTED_FUNCTION_EXCEPTION, exception);
     } finally {
-      setObserverState(ObserverState.Enabled);
+      setReactivityState(currentReactivityState);
     }
     return undefined;
   }

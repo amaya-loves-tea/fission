@@ -4,11 +4,11 @@
 /** @ignore */
 import { defineReactiveProperty, observeObject, ATTACHED_OBSERVABLE_KEY } from './observer';
 import {
-  observerState,
-  ObserverState,
-  addObserverQueueItem,
-  OBSERVER_STATE_DISABLED_EXCEPTION,
-} from './observer-state';
+  reactivityState,
+  ReactivityState,
+  addReactivityQueueItem,
+  REACTIVITY_DISABLED_EXCEPTION,
+} from './reactivity-state';
 import Observable from './observable';
 
 /**
@@ -26,7 +26,7 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
   // Make the current iterator method a mutator function
   Object.defineProperty(arrayMethods, method, {
     value: function mutator<T extends T[], U>(this: T): U | undefined {
-      if (observerState === ObserverState.Enabled) {
+      if (reactivityState === ReactivityState.Enabled) {
         const result = original.apply(this, arguments) as U;
         const observable = (this as any)[ATTACHED_OBSERVABLE_KEY];
 
@@ -47,10 +47,10 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
         observable.update(this);
 
         return result;
-      } else if (observerState === ObserverState.Disabled) {
-        throw new Error(OBSERVER_STATE_DISABLED_EXCEPTION);
+      } else if (reactivityState === ReactivityState.Disabled) {
+        throw new Error(REACTIVITY_DISABLED_EXCEPTION);
       } else {
-        addObserverQueueItem({ context: this, func: mutator, args: Array.from(arguments) });
+        addReactivityQueueItem({ context: this, func: mutator, args: Array.from(arguments) });
       }
       return undefined;
     },
@@ -63,6 +63,8 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
  * @param array - Array with items to be made reactive.
  * @param start - Index to start from.
  * @param stop - Index to stop at. For example "stop = 9" will stop at index 8.
+ *
+ * @typeparam T - Any array type
  */
 function observeArrayItems<T extends T[]>(array: T, start: number, stop: number): void {
   for (let i = start; i < stop; i++) {

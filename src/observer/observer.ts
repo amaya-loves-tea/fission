@@ -8,19 +8,21 @@ import { arrayMethods } from './array';
 import ComputedObservable, { currentEvaluatingObservable } from './computed-observable';
 import Observable from './observable';
 import {
-  observerState,
-  ObserverState,
-  addObserverQueueItem,
-  OBSERVER_STATE_DISABLED_EXCEPTION,
-} from './observer-state';
+  reactivityState,
+  ReactivityState,
+  addReactivityQueueItem,
+  REACTIVITY_DISABLED_EXCEPTION,
+} from './reactivity-state';
 
 /**
  * Gets the return type of a function.
+ *
+ * @typeparam T - Any function definition.
  */
 type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
 
 /**
- * Transform functions on objects to properties with the value the function returns.
+ * Transform functions on objects to properties with the type the function returns.
  *
  * ```typescript
  * type dataType = {
@@ -36,6 +38,8 @@ type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
  *   total: number
  * };
  * ```
+ *
+ * @typeparam T - Plain javascript object.
  */
 type ObservedData<T> = {
   [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
@@ -167,7 +171,7 @@ export function defineReactiveProperty<T>(
     set: observable instanceof ComputedObservable ? 
       undefined : 
       function reactiveSetter(value: T): void {
-        if (observerState === ObserverState.Enabled) {
+        if (reactivityState === ReactivityState.Enabled) {
           setter && setter(value);
           value = getter ? getter() : value;
           if (observable.value !== value) {
@@ -175,11 +179,10 @@ export function defineReactiveProperty<T>(
             observable.update(value);
           }
         }
-        else if (observerState === ObserverState.Disabled) {
-          throw new Error(OBSERVER_STATE_DISABLED_EXCEPTION);          
-        }
-        else {
-          addObserverQueueItem({ func: reactiveSetter, args: [value] });
+        else if (reactivityState === ReactivityState.Disabled) {
+          throw new Error(REACTIVITY_DISABLED_EXCEPTION);
+        } else {
+          addReactivityQueueItem({ func: reactiveSetter, args: [value] });
         }
       },
     enumerable: true,

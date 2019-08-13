@@ -14,6 +14,9 @@ import { navigateToPropertyPath } from '../util';
  * @param path - Path to the property in an object.
  * @param watcher - [[WatcherFunction]].
  * @param operation - Specifies what to do with the [[WatcherFunction]]
+ *
+ * @typeparam T - Object on which to register a property watcher.
+ * @typeparam U - Return type of the property watcher.
  */
 function modifyPropertyWatcherList<T extends object, U>(
   observedData: T,
@@ -59,6 +62,8 @@ function modifyPropertyWatcherList<T extends object, U>(
  * @param data - Object observed with [[observe]].
  * @param path - Path to the property on the data object.
  * @param watcher - Function to add to the properties' watchers.
+ *
+ * @typeparam T - Return type of the watcher function.
  */
 export function addPropertyWatcher<T>(
   data: object,
@@ -99,6 +104,8 @@ export function addPropertyWatcher<T>(
  * @param data - Object observed with [[observe]].
  * @param path - Path to the property on the data object.
  * @param watcher - Function to remove from the properties' watchers.
+ *
+ * @typeparam T - Return type of the watcher function.
  */
 export function removePropertyWatcher<T>(
   data: object,
