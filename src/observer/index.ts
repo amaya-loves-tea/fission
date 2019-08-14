@@ -3,7 +3,7 @@
  */
 
 /** @ignore */
-export { observe } from './observer';
+export { observe, extractObservableFromProperty } from './observer';
 export {
   setReactivityState,
   processReactivityQueue,

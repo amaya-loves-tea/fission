@@ -41,7 +41,7 @@ type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
  *
  * @typeparam T - Plain javascript object.
  */
-type ObservedData<T> = {
+export type ObservedData<T> = {
   [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
 };
 
