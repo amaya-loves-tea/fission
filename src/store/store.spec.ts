@@ -1,5 +1,9 @@
 import { processReactivityQueue, purgeReactivityQueue } from '../observer';
-import { reactivityState, ReactivityState } from '../observer/reactivity-state';
+import {
+  reactivityState,
+  ReactivityState,
+  REACTIVITY_DISABLED_EXCEPTION,
+} from '../observer/reactivity-state';
 import consoleReference from 'console';
 import Store from './store';
 
@@ -210,6 +214,11 @@ describe('Store', () => {
       store.$dispatch('changeName', 'another new store name');
       expect(watcher).not.toBeCalled();
     });
+  });
+
+  test('store state can not be set outside of actions', () => {
+    const store = Store.create(createStoreOptions());
+    expect(() => (store.$state.name = '__NEW_NAME__')).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
   });
 });
 

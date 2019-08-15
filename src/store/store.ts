@@ -68,11 +68,16 @@ export default class Store<T extends object, U extends object> {
       for (i = 0; i < keys.length; i++) {
         const module = options.modules[keys[i] as keyof typeof options.modules];
         if (isPlainObject(module)) {
-          Object.defineProperty(this, keys[i], { value: new Store(module) });
+          Object.defineProperty(this, keys[i], {
+            value: new Store(module),
+          });
         } else {
           throw new Error('Modules must be plain javascript options objects');
         }
       }
+
+      // ensure reactivity is disabled
+      setReactivityState(ReactivityState.Disabled);
     } else {
       throw new Error('Store only accepts a plain javascript options object');
     }
