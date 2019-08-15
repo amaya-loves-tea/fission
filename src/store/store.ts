@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/interface-name-prefix: "warn" */
-import { isPlainObject } from '../util';
+import { isPlainObject, logWarning } from '../util';
 import {
   observe,
   processReactivityQueue,
@@ -8,13 +8,13 @@ import {
   addPropertyWatcher,
   removePropertyWatcher,
 } from '../observer';
-import { ReactivityState } from '../observer/reactivity-state';
+import { ReactivityState, reactivityState } from '../observer/reactivity-state';
 import { WatcherFunction } from '../observer/observable';
 import { ObservedData } from '../observer/observer';
 
 interface IStore<T extends object> {
   $state: ObservedData<T>;
-  $dispatch<U>(action: string, payload: U): void;
+  $dispatch<U>(action: string, payload?: U): void;
   $watch<U>(path: string, watcher: WatcherFunction<U>): WatcherFunction<U>;
   $unwatch<U>(path: string, watcher: WatcherFunction<U>): void;
 }
@@ -55,7 +55,9 @@ export default class Store<T extends object, U extends object> {
       keys = Object.keys(this._actions);
       for (i = 0; i < keys.length; i++) {
         if (typeof this._actions[keys[i]] !== 'function') {
-          throw new Error(`Action with key ${keys[i]} is not a function`);
+          throw new Error(
+            `Actions definitions should be functions but '${keys[i]}' is not a function`,
+          );
         }
       }
 
@@ -65,10 +67,14 @@ export default class Store<T extends object, U extends object> {
       keys = Object.keys(options.modules);
       for (i = 0; i < keys.length; i++) {
         const module = options.modules[keys[i] as keyof typeof options.modules];
-        Object.defineProperty(this, keys[i], { value: new Store(module) });
+        if (isPlainObject(module)) {
+          Object.defineProperty(this, keys[i], { value: new Store(module) });
+        } else {
+          throw new Error('Modules must be plain javascript options objects');
+        }
       }
     } else {
-      throw new Error('createStore only accepts a plain javascript options object');
+      throw new Error('Store only accepts a plain javascript options object');
     }
   }
 
@@ -78,13 +84,13 @@ export default class Store<T extends object, U extends object> {
     return (new Store(options) as unknown) as StoreDefinition<IStoreOptions<T, U>>;
   }
 
-  public $dispatch<U>(action: string, payload: U): any {
+  public $dispatch<U>(action: string, payload?: U): any {
     const callback = this._actions[action];
-    // collect all data changes in the callback function in a reactivity queue
-    setReactivityState(ReactivityState.Lazy);
-    const result =
-      callback &&
-      callback.call(
+    if (callback) {
+      const currentReactivityState = reactivityState;
+      // collect all data changes in the callback function in a reactivity queue
+      setReactivityState(ReactivityState.Lazy);
+      const result = callback.call(
         undefined,
         {
           state: this.$state,
@@ -93,10 +99,13 @@ export default class Store<T extends object, U extends object> {
         },
         payload,
       );
-    // run all data change actions in the reactivity queue
-    processReactivityQueue();
-    setReactivityState(ReactivityState.Disabled);
-    return result;
+      // run all data change actions in the reactivity queue
+      processReactivityQueue();
+      setReactivityState(currentReactivityState);
+      return result;
+    } else {
+      logWarning(`Action with key '${action}' does not exist`);
+    }
   }
 
   public $watch<U>(propertyPath: string, watcher: WatcherFunction<U>): WatcherFunction<U> {
