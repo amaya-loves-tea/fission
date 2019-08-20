@@ -62,7 +62,7 @@ export const arrayMethods: typeof Array.prototype = Object.create(Array.prototyp
  *
  * @param array - Array with items to be made reactive.
  * @param start - Index to start from.
- * @param stop - Index to stop at. For example "stop = 9" will stop at index 8.
+ * @param stop - Item to stop at (exclusive). For example "stop = 9" will stop at index 8.
  *
  * @typeparam T - Any array type
  */

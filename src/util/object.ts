@@ -1,5 +1,5 @@
 /**
- * Add an object's functionality to your target's prototype chain.
+ * Add an object's functionality to your target object's prototype chain.
  *
  * @param target - Target object to augment.
  * @param source - Source to use for augmentation.

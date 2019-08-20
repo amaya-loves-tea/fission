@@ -22,7 +22,7 @@ import {
 type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
 
 /**
- * Transform functions on objects to properties with the type the function returns.
+ * Transform functions on objects to properties with the return type of the function.
  *
  * ```typescript
  * type dataType = {

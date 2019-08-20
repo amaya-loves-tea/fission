@@ -1,4 +1,3 @@
-import { processReactivityQueue, purgeReactivityQueue } from '../observer';
 import {
   reactivityState,
   ReactivityState,
@@ -10,8 +9,9 @@ import Store from './store';
 global.console = consoleReference;
 
 describe('Store', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     consoleReference.warn = jest.fn();
+    consoleReference.error = jest.fn();
   });
 
   describe('constructor', () => {
@@ -49,11 +49,11 @@ describe('Store', () => {
       });
 
       describe('options.actions', () => {
-        it('gets assigned to the store _actions private property', () => {
+        it('gets assigned to the store $actions private property', () => {
           const options = createStoreOptions();
           const store: any = new Store(options);
-          expect(store._actions).toBeDefined();
-          expect(store._actions).toBe(options.actions);
+          expect(store.$actions).toBeDefined();
+          expect(store.$actions).toBe(options.actions);
         });
 
         it('throws an error if the properties are not function definitions', () => {
@@ -61,6 +61,23 @@ describe('Store', () => {
           options.actions.nonFunction = 'test';
           expect(() => new Store(options)).toThrowError(
             "Actions definitions should be functions but 'nonFunction' is not a function",
+          );
+        });
+      });
+
+      describe('options.mutations', () => {
+        it('gets assigned to the store $mutations private property', () => {
+          const options = createStoreOptions();
+          const store: any = new Store(options);
+          expect(store.$mutations).toBeDefined();
+          expect(store.$mutations).toBe(options.mutations);
+        });
+
+        it('throws an error if the properties are not function definitions', () => {
+          const options: any = createStoreOptions();
+          options.mutations.nonFunction = 'test';
+          expect(() => new Store(options)).toThrowError(
+            "Mutation definitions should be functions but 'nonFunction' is not a function",
           );
         });
       });
@@ -100,10 +117,10 @@ describe('Store', () => {
     });
   });
 
-  describe('$dispatch', () => {
-    it('calls a store action passing in various parameters needed by the action', () => {
+  describe('$commit', () => {
+    it('calls a store mutation passing in various parameters needed by the mutation', () => {
       const options = createStoreOptions();
-      options.actions.addStockItem = jest.fn(options.actions.addStockItem);
+      options.mutations.addStockItem = jest.fn(options.mutations.addStockItem);
       const store = Store.create(options);
       const payload = {
         price: 56,
@@ -113,68 +130,85 @@ describe('Store', () => {
         },
       };
 
-      store.$dispatch('addStockItem', payload);
+      store.$commit('addStockItem', payload);
 
-      expect(options.actions.addStockItem).toBeCalledTimes(1);
-      expect(options.actions.addStockItem).toBeCalledWith(
-        { state: store.$state, commit: processReactivityQueue, discard: purgeReactivityQueue },
-        payload,
+      expect(options.mutations.addStockItem).toBeCalledTimes(1);
+
+      const context = (options.mutations.addStockItem as any).mock.calls[0][0];
+      expect(context.state).toBe(store.$state);
+
+      const data = (options.mutations.addStockItem as any).mock.calls[0][1];
+      expect(data).toBe(payload);
+    });
+
+    it('creates a warning when calling a mutation that does not exist', () => {
+      const store = Store.create(createStoreOptions());
+      store.$commit('DOES NOT EXST');
+      expect(consoleReference.warn).toBeCalledTimes(1);
+      expect(consoleReference.warn).toBeCalledWith(
+        "[Reactivity Warning]: Mutation with key 'DOES NOT EXST' does not exist",
       );
     });
 
-    it('creates a warning when calling an action that does not exist', () => {
+    it('sets reactivity state to enabled while executing the mutation and disables it again after it executes', () => {
+      const options: any = createStoreOptions();
+      options.mutations.reactivityState = (): void => {
+        expect(reactivityState).toBe(ReactivityState.Enabled);
+      };
+      expect(reactivityState).toBe(ReactivityState.Disabled);
+    });
+
+    it('throws an error when the mutation fails to evaluate', () => {
+      const options: any = createStoreOptions();
+      options.mutations.errorMutation = () => {
+        throw new Error('test');
+      };
+      const store = new Store(options);
+      expect(() => store.$commit('errorMutation')).toThrowError('test');
+    });
+
+    it('returns the result of executing the mutation', () => {
+      const options: any = createStoreOptions();
+      options.mutations.result = () => 'string return value';
+      const store = Store.create(options);
+      expect(store.$commit('result', undefined)).toBe('string return value');
+    });
+  });
+
+  describe('$dispatch', () => {
+    it('calls a store action passing in various parameters needed by the action', () => {
+      const options = createStoreOptions();
+      options.actions.changeNameAsync = jest.fn(options.actions.changeNameAsync);
+      const store = Store.create(options);
+      const payload = '__NEW_NAME_ASYNC';
+
+      store.$dispatch('changeNameAsync', payload);
+
+      expect(options.actions.changeNameAsync).toBeCalledTimes(1);
+
+      const context = (options.actions.changeNameAsync as any).mock.calls[0][0];
+      expect(context.state).toBe(store.$state);
+
+      const data = (options.actions.changeNameAsync as any).mock.calls[0][1];
+      expect(data).toBe(payload);
+    });
+
+    it('creates a warning when calling a action that does not exist', () => {
       const store = Store.create(createStoreOptions());
       store.$dispatch('DOES NOT EXST');
       expect(consoleReference.warn).toBeCalledTimes(1);
+      expect(consoleReference.warn).toBeCalledWith(
+        "[Reactivity Warning]: Action with key 'DOES NOT EXST' does not exist",
+      );
     });
 
-    test('using the context.commit parameter immediately commits all changes done up to that point in the action', () => {
+    it('throws an error when the action fails to evaluate', () => {
       const options: any = createStoreOptions();
-      options.actions.earlyCommit = (context: any, payload: any) => {
-        context.state.supplier = payload.supplier;
-        expect(context.state.supplier).not.toBe(payload.supplier);
-        context.commit();
-        expect(context.state.supplier).toBe(payload.supplier);
+      options.actions.errorAction = () => {
+        throw new Error('test');
       };
-      const store = Store.create(options);
-      store.$dispatch('earlyCommit', { supplier: 'june supplies' });
-    });
-
-    test('using the context.discard parameter discards changes in the action up to that point', () => {
-      const options: any = createStoreOptions();
-      options.actions.earlyCommit = (context: any, payload: any) => {
-        context.state.supplier = payload.supplier;
-        expect(context.state.supplier).not.toBe(payload.supplier);
-        context.discard();
-        expect(context.state.supplier).not.toBe(payload.supplier);
-      };
-      const store = Store.create(options);
-      store.$dispatch('earlyCommit', { supplier: 'june supplies' });
-    });
-
-    it('sets reactivity state to lazy while executing the action and back to whatever it as before executing the action', () => {
-      const options: any = createStoreOptions();
-      const currentReactivityState = reactivityState;
-      options.actions.reactivityState = (): void => {
-        expect(reactivityState).toBe(ReactivityState.Lazy);
-      };
-      expect(reactivityState).toBe(currentReactivityState);
-    });
-
-    it('processes the reactivity queue once the action completes', () => {
-      const options: any = createStoreOptions();
-      options.actions.reactivityQueue = (context: any, payload: any) => {
-        context.state.name = payload.name;
-        context.state.stock = payload.stock;
-
-        expect(context.state.name).not.toBe(payload.name);
-        expect(context.state.name).not.toBe(payload.stock);
-      };
-      const store: any = new Store(options);
-      const payload = { name: 'unknown wholesalers', stock: [] };
-      store.$dispatch('reactivityQueue', payload);
-      expect(store.$state.name).toBe(payload.name);
-      expect(store.$state.stock).toBe(payload.stock);
+      const store = new Store(options);
+      expect(() => store.$dispatch('errorAction')).toThrowError('test');
     });
 
     it('returns the result of executing the action', () => {
@@ -190,7 +224,7 @@ describe('Store', () => {
       const store = Store.create(createStoreOptions());
       const watcher = jest.fn();
       store.$watch('name', watcher);
-      store.$dispatch('changeName', 'NEW STORE NAME');
+      store.$commit('changeName', 'NEW STORE NAME');
       expect(watcher).toBeCalledWith('NEW STORE NAME', 'random wholesalers');
     });
 
@@ -206,19 +240,24 @@ describe('Store', () => {
       const store = Store.create(createStoreOptions());
       const watcher = jest.fn();
       store.$watch('name', watcher);
-      store.$dispatch('changeName', 'NEW STORE NAME');
+      store.$commit('changeName', 'NEW STORE NAME');
       expect(watcher).toBeCalledWith('NEW STORE NAME', 'random wholesalers');
 
       watcher.mockClear();
       store.$unwatch('name', watcher);
-      store.$dispatch('changeName', 'another new store name');
+      store.$commit('changeName', 'another new store name');
       expect(watcher).not.toBeCalled();
     });
   });
 
-  test('store state can not be set outside of actions', () => {
-    const store = Store.create(createStoreOptions());
+  test('store state can not be set outside of mutations', () => {
+    const options: any = createStoreOptions();
+    options.actions.invalid = function(ctx: any) {
+      ctx.state.name = 'INVALID';
+    };
+    const store: any = Store.create(options);
     expect(() => (store.$state.name = '__NEW_NAME__')).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
+    expect(() => store.$dispatch('invalid')).toThrowError(REACTIVITY_DISABLED_EXCEPTION);
   });
 });
 
@@ -237,12 +276,19 @@ function createStoreOptions() {
         },
       ],
     },
-    actions: {
+    mutations: {
       changeName(ctx: any, name: string) {
         ctx.state.name = name;
       },
       addStockItem(ctx: any, item: any) {
         ctx.state.stock.push(item);
+      },
+    },
+    actions: {
+      changeNameAsync(ctx: any, name: string): void {
+        setTimeout(() => {
+          ctx.commit('changeName', name);
+        }, 10);
       },
     },
     modules: {

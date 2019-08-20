@@ -1,7 +1,8 @@
 /**
- * Entry point to the reactor library that exposes the public API.
+ * Entry point to the fission library that exposes the public API.
  */
 
 /** @ignore */
-export * from './observer';
-export * from './util';
+import * as utils from './util';
+export { default as Store } from './store';
+export { utils };

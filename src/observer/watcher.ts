@@ -87,11 +87,9 @@ export function addPropertyWatcher<T>(
  *  }
  * });
  *
- * const watcher = (value, oldValue) => {
+ * const watcher = addPropertyWatcher(observed, 'price', (value, oldValue) => {
  *  console.log(value, oldValue);
- * }
- *
- * addPropertyWatcher(observed, 'price', watcher);
+ * });
  *
  * // watcher is called on data change
  * observed.price = 50; // output: 50 43

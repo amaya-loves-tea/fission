@@ -10,7 +10,7 @@ import { setReactivityState, ReactivityState, reactivityState } from './reactivi
 export let currentEvaluatingObservable: ComputedObservable<unknown> | undefined;
 
 /**
- * Function signature for a [[ComputedObservable]].
+ * Computed function definition for a [[ComputedObservable]].
  *
  * @typeparam T - Any valid javascript type.
  */

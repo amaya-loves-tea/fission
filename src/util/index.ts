@@ -1,5 +1,5 @@
 /**
- * Exports functionality from all the "util/*" modules.
+ * Exposes functionality from all the util modules.
  */
 
 /** @ignore */

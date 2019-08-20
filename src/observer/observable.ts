@@ -39,7 +39,6 @@ const WATCHER_EXCEPTION = 'Watcher failed to execute.';
  * ```typescript
  * const observable = new Observable(20);
  * const computedObservable = new ComputedObservable(() => observable.value * 2);
- * computedObservable.update(computedObservable.evaluate());
  *
  * console.log(computedObservable.value); // output: 40
  *

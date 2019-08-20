@@ -6,9 +6,9 @@
  * Represents all the possible reactivity states.
  */
 export enum ReactivityState {
-  /** All data changes events will throw an exception. */
+  /** Data change events will throw an exception. */
   Disabled,
-  /** All data change events are collected but not run. */
+  /** Data change events are collected but not run. */
   Lazy,
   /** Data change events immediately execute. */
   Enabled,
