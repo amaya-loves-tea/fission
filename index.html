@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>@teasenshi/fission</title>
-	<meta name="description" content="">
+	<meta name="description" content="Documentation for @teasenshi/fission">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> @teasenshi/fission</h1>
+			<h1>@teasenshi/fission</h1>
 		</div>
 	</div>
 </header>
@@ -168,7 +168,7 @@
 					<h3>Creating a store instance</h3>
 				</a>
 				<p>There are 2 methods for creating a store instance. The one you end up using depends on whether or not you are using typescript.</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> Store <span class="hljs-keyword">from</span> <span class="hljs-string">'@teasenshi/fission'</span>;
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> Store <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@teasenshi/fission&#x27;</span>;
 
 <span class="hljs-comment">// Use in javascript environments</span>
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(options);
@@ -185,29 +185,29 @@
     qty: <span class="hljs-number">10</span>,
     shouldFormat: <span class="hljs-literal">false</span>,
     total() {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.price * <span class="hljs-keyword">this</span>.qty;
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.price * <span class="hljs-built_in">this</span>.qty;
     },
     totalTimesFive() {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.total * <span class="hljs-number">5</span>;
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.total * <span class="hljs-number">5</span>;
     },
     formattedTotal() {
-      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.shouldFormat) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span>.shouldFormat) {
         <span class="hljs-comment">// return a formatted currency string</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Intl</span>.NumberFormat(<span class="hljs-string">'en-US'</span>, {
-          style: <span class="hljs-string">'currency'</span>,
-          currency: <span class="hljs-string">'USD'</span>,
-        }).format(<span class="hljs-keyword">this</span>.total);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Intl</span>.NumberFormat(<span class="hljs-string">&#x27;en-US&#x27;</span>, {
+          style: <span class="hljs-string">&#x27;currency&#x27;</span>,
+          currency: <span class="hljs-string">&#x27;USD&#x27;</span>,
+        }).format(<span class="hljs-built_in">this</span>.total);
       } <span class="hljs-keyword">else</span> {
-        <span class="hljs-keyword">return</span> <span class="hljs-string">'formatting disabled'</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;formatting disabled&#x27;</span>;
       }
     },
     shortCircuiting() {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.price &gt; <span class="hljs-number">60</span> &amp;&amp; <span class="hljs-keyword">this</span>.qty &gt; <span class="hljs-number">20</span>;
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.price &gt; <span class="hljs-number">60</span> &amp;&amp; <span class="hljs-built_in">this</span>.qty &gt; <span class="hljs-number">20</span>;
     },
   },
 });
 
-<span class="hljs-built_in">console</span>.log(store.$state); <span class="hljs-comment">// output: { price: 55, qty: 10, total: 550, totalTimesFive: 2750, formattedTotal: 'formatting disabled',  }</span>
+<span class="hljs-built_in">console</span>.log(store.$state); <span class="hljs-comment">// output: { price: 55, qty: 10, total: 550, totalTimesFive: 2750, formattedTotal: &#x27;formatting disabled&#x27;,  }</span>
 
 <span class="hljs-comment">// This line throws an exceptions as store state cannot be set directly.</span>
 store.$state.price = <span class="hljs-number">55</span>;</code></pre>
@@ -242,8 +242,8 @@ store.$state.price = <span class="hljs-number">55</span>;</code></pre>
   },
   mutations: {
     <span class="hljs-comment">/*
-     'context' is an object containing a reference to some store instance members.
-     'payload' is any value that can be passed to the mutation by the user.
+     &#x27;context&#x27; is an object containing a reference to some store instance members.
+     &#x27;payload&#x27; is any value that can be passed to the mutation by the user.
     */</span>
     setPrice(context, payload) {
       context.$state.price = payload;
@@ -263,12 +263,12 @@ store.$state.price = <span class="hljs-number">55</span>;</code></pre>
       <span class="hljs-comment">// Do stuff</span>
 
       <span class="hljs-comment">// Commit another mutation</span>
-      $commit(<span class="hljs-string">'setQty'</span>, value);
+      $commit(<span class="hljs-string">&#x27;setQty&#x27;</span>, value);
     }
     <span class="hljs-comment">// Mutations cannot asynchronously change store state</span>
     invalidAsync({ $state }, value) {
       $state.price = <span class="hljs-number">100</span>; <span class="hljs-comment">// Ok</span>
-      setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+      <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> {
         $state.qty = value; <span class="hljs-comment">// This line will cause an exception</span>
       }, <span class="hljs-number">100</span>);
     }
@@ -276,12 +276,12 @@ store.$state.price = <span class="hljs-number">55</span>;</code></pre>
 });
 
 <span class="hljs-comment">// Simple commit</span>
-store.$commit(<span class="hljs-string">'setPrice'</span>, <span class="hljs-number">22</span>);
+store.$commit(<span class="hljs-string">&#x27;setPrice&#x27;</span>, <span class="hljs-number">22</span>);
 <span class="hljs-built_in">console</span>.log(store.$state.price); <span class="hljs-comment">// output: 22</span>
 
 <span class="hljs-comment">// Store the result of committing the mutation</span>
-<span class="hljs-keyword">const</span> result = store.commit(<span class="hljs-string">'doSomethingAndReturn'</span>, <span class="hljs-string">'A VALUE'</span>);
-<span class="hljs-built_in">console</span>.log(result); <span class="hljs-comment">// output: "A VALUE"</span></code></pre>
+<span class="hljs-keyword">const</span> result = store.commit(<span class="hljs-string">&#x27;doSomethingAndReturn&#x27;</span>, <span class="hljs-string">&#x27;A VALUE&#x27;</span>);
+<span class="hljs-built_in">console</span>.log(result); <span class="hljs-comment">// output: &quot;A VALUE&quot;</span></code></pre>
 				<a href="#actions" id="actions" style="color: inherit; text-decoration: none;">
 					<h3>Actions</h3>
 				</a>
@@ -304,10 +304,10 @@ store.$commit(<span class="hljs-string">'setPrice'</span>, <span class="hljs-num
       <span class="hljs-comment">// Do something with payload perhaps asynchronously persisting it to a server</span>
 
       <span class="hljs-comment">// Persist data to store using commit</span>
-      $commit(<span class="hljs-string">'setTotal'</span>, payload);
+      $commit(<span class="hljs-string">&#x27;setTotal&#x27;</span>, payload);
 
       <span class="hljs-comment">// Trigger another action</span>
-      $dispatch(<span class="hljs-string">'totalSet'</span>);
+      $dispatch(<span class="hljs-string">&#x27;totalSet&#x27;</span>);
     },
     <span class="hljs-comment">/*
       Actions can also return values to the caller.
@@ -328,10 +328,10 @@ store.$commit(<span class="hljs-string">'setPrice'</span>, <span class="hljs-num
 });
 
 <span class="hljs-comment">// Simple action</span>
-store.$dispatch(<span class="hljs-string">'setTotal'</span>, {price: <span class="hljs-number">50</span>, qty: <span class="hljs-number">15</span>});
+store.$dispatch(<span class="hljs-string">&#x27;setTotal&#x27;</span>, {price: <span class="hljs-number">50</span>, qty: <span class="hljs-number">15</span>});
 
 <span class="hljs-comment">// Promise based action</span>
-store.dispatch(<span class="hljs-string">'doSomethingAsync'</span>).then(<span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> {
+store.dispatch(<span class="hljs-string">&#x27;doSomethingAsync&#x27;</span>).then(<span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> {
   <span class="hljs-comment">// Do something</span>
 });</code></pre>
 				<a href="#watchers" id="watchers" style="color: inherit; text-decoration: none;">
@@ -341,7 +341,7 @@ store.dispatch(<span class="hljs-string">'doSomethingAsync'</span>).then(<span c
 				<pre><code class="language-typescript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store({
   state: {
     products: {
-      stock: [{ name: <span class="hljs-string">'jelly'</span>, price: <span class="hljs-number">20</span>, qty: <span class="hljs-number">100</span> }, { name: <span class="hljs-string">'mouse'</span>, price: <span class="hljs-number">55</span>, qty: <span class="hljs-number">5</span> }],
+      stock: [{ name: <span class="hljs-string">&#x27;jelly&#x27;</span>, price: <span class="hljs-number">20</span>, qty: <span class="hljs-number">100</span> }, { name: <span class="hljs-string">&#x27;mouse&#x27;</span>, price: <span class="hljs-number">55</span>, qty: <span class="hljs-number">5</span> }],
       lowStockItems() {
         <span class="hljs-keyword">return</span> stock.filter(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.qty &lt; <span class="hljs-number">10</span>).map(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.name);
       },
@@ -356,18 +356,18 @@ store.dispatch(<span class="hljs-string">'doSomethingAsync'</span>).then(<span c
   $watch expects the path to the property as a first parameter and the watcher function as a second 
   and returns a reference to the watcher function.
 */</span>
-<span class="hljs-keyword">const</span> watcher = store.$watch(<span class="hljs-string">'products.lowStockItems'</span>, <span class="hljs-function">(<span class="hljs-params">value, oldValue</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> watcher = store.$watch(<span class="hljs-string">&#x27;products.lowStockItems&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">value, oldValue</span>) =&gt;</span> {
   <span class="hljs-built_in">console</span>.log(value, oldValue);
 });
 
 <span class="hljs-comment">// Remove 95 jelly from stock, jelly should now be a `lowStockItem` and the watcher will be called.</span>
-store.commit(<span class="hljs-string">'removeStock'</span>, { name: <span class="hljs-string">'jelly'</span>, amount: <span class="hljs-number">95</span> }); <span class="hljs-comment">// output: ['jelly', 'mouse'] ['jelly']</span>
+store.commit(<span class="hljs-string">&#x27;removeStock&#x27;</span>, { name: <span class="hljs-string">&#x27;jelly&#x27;</span>, amount: <span class="hljs-number">95</span> }); <span class="hljs-comment">// output: [&#x27;jelly&#x27;, &#x27;mouse&#x27;] [&#x27;jelly&#x27;]</span>
 
-<span class="hljs-comment">// Stop watching changes to 'lowStockItems'</span>
-store.$unwatch(<span class="hljs-string">'products.lowStockItems'</span>, watcher);
+<span class="hljs-comment">// Stop watching changes to &#x27;lowStockItems&#x27;</span>
+store.$unwatch(<span class="hljs-string">&#x27;products.lowStockItems&#x27;</span>, watcher);
 
 <span class="hljs-comment">// Since watcher is removed there is no output</span>
-store.commit(<span class="hljs-string">'addStock'</span>, { name: <span class="hljs-string">'jelly'</span>, amount: <span class="hljs-number">95</span> });</code></pre>
+store.commit(<span class="hljs-string">&#x27;addStock&#x27;</span>, { name: <span class="hljs-string">&#x27;jelly&#x27;</span>, amount: <span class="hljs-number">95</span> });</code></pre>
 				<a href="#modules" id="modules" style="color: inherit; text-decoration: none;">
 					<h3>Modules</h3>
 				</a>
@@ -398,18 +398,18 @@ store.commit(<span class="hljs-string">'addStock'</span>, { name: <span class="h
 <span class="hljs-comment">// Usage examples</span>
 <span class="hljs-comment">// Root store</span>
 store.$state.name;
-store.$commit(<span class="hljs-string">'MUTATION_NAME'</span>, <span class="hljs-string">''</span>);
-store.$dispatch(<span class="hljs-string">'ACTION_NAME'</span>, {});
+store.$commit(<span class="hljs-string">&#x27;MUTATION_NAME&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>);
+store.$dispatch(<span class="hljs-string">&#x27;ACTION_NAME&#x27;</span>, {});
 
 <span class="hljs-comment">// Root.Factory module</span>
 store.factory.$state.headCount;
-store.factory.$commit(<span class="hljs-string">'MUTATION_NAME'</span>, {});
-store.factory.$dispatch(<span class="hljs-string">'ACTION_NAME'</span>, <span class="hljs-string">''</span>);
+store.factory.$commit(<span class="hljs-string">&#x27;MUTATION_NAME&#x27;</span>, {});
+store.factory.$dispatch(<span class="hljs-string">&#x27;ACTION_NAME&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>);
 
 <span class="hljs-comment">// Root.Factory.Shop module</span>
 store.factory.shop.$state.employees;
-store.factory.shop.$commit(<span class="hljs-string">'MUTATION_NAME'</span>, []);
-store.factory.shop.$dispatch(<span class="hljs-string">'ACTION_NAME'</span>, []);</code></pre>
+store.factory.shop.$commit(<span class="hljs-string">&#x27;MUTATION_NAME&#x27;</span>, []);
+store.factory.shop.$dispatch(<span class="hljs-string">&#x27;ACTION_NAME&#x27;</span>, []);</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -418,44 +418,47 @@ store.factory.shop.$dispatch(<span class="hljs-string">'ACTION_NAME'</span>, [])
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_index_.html">"index"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_index_.html">&quot;index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_array_.html">"observer/array"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_array_.html">&quot;observer/array&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_computed_observable_.html">"observer/computed-<wbr>observable"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_computed_observable_.html">&quot;observer/computed-<wbr>observable&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_index_.html">"observer/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_index_.html">&quot;observer/index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_observable_.html">"observer/observable"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_observable_.html">&quot;observer/observable&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_observer_.html">"observer/observer"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_observer_.html">&quot;observer/observer&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_reactivity_state_.html">"observer/reactivity-<wbr>state"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_reactivity_state_.html">&quot;observer/reactivity-<wbr>state&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_observer_watcher_.html">"observer/watcher"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_observer_watcher_.html">&quot;observer/watcher&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_store_index_.html">"store/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_store_index_.html">&quot;store/index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_store_store_.html">"store/store"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_store_store_.html">&quot;store/store&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_util_index_.html">"util/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_types_.html">&quot;types&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_util_log_.html">"util/log"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_util_index_.html">&quot;util/index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_util_object_.html">"util/object"</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/_util_log_.html">&quot;util/log&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_util_object_.html">&quot;util/object&quot;</a>
 					</li>
 				</ul>
 			</nav>
@@ -471,57 +474,21 @@ store.factory.shop.$dispatch(<span class="hljs-string">'ACTION_NAME'</span>, [])
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>

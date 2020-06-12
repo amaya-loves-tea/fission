@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Observable | @teasenshi/fission</title>
-	<meta name="description" content="">
+	<meta name="description" content="Documentation for @teasenshi/fission">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -93,13 +93,13 @@ observable.update(<span class="hljs-number">15</span>); <span class="hljs-commen
 					<p>Observers are <a href="_observer_computed_observable_.computedobservable.html">ComputedObservable</a>s that use other <a href="_observer_observable_.observable.html">Observable</a>s to determine their values.</p>
 					<p>When the observable changes then observers are updated.</p>
 					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> observable = <span class="hljs-keyword">new</span> Observable(<span class="hljs-number">20</span>);
-<span class="hljs-keyword">const</span> computedObservable = <span class="hljs-keyword">new</span> ComputedObservable(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> observable.value * <span class="hljs-number">2</span>);
+<span class="hljs-keyword">const</span> computedObservable = <span class="hljs-keyword">new</span> ComputedObservable(<span class="hljs-function">() =&gt;</span> observable.value * <span class="hljs-number">2</span>);
 
 <span class="hljs-built_in">console</span>.log(computedObservable.value); <span class="hljs-comment">// output: 40</span>
 
 observable.observe(computedObservable);
 
-<span class="hljs-comment">// Since the computed observable is now 'observed' it will get updated when the observable changes.</span>
+<span class="hljs-comment">// Since the computed observable is now &#x27;observed&#x27; it will get updated when the observable changes.</span>
 observable.update(<span class="hljs-number">15</span>);
 
 <span class="hljs-built_in">console</span>.log(computedObservable.value); <span class="hljs-comment">// output: 30</span></code></pre>
@@ -174,7 +174,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L69">observer/observable.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L69">observer/observable.ts:69</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -200,10 +200,10 @@ observable.update(<span class="hljs-number">15</span>);
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="_observers" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _observers</h3>
-					<div class="tsd-signature tsd-kind-icon">_observers<span class="tsd-signature-symbol">:</span> <a href="_observer_computed_observable_.computedobservable.html" class="tsd-signature-type">ComputedObservable</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<div class="tsd-signature tsd-kind-icon">_observers<span class="tsd-signature-symbol">:</span> <a href="_observer_computed_observable_.computedobservable.html" class="tsd-signature-type">ComputedObservable</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L64">observer/observable.ts:64</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L64">observer/observable.ts:64</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -215,10 +215,10 @@ observable.update(<span class="hljs-number">15</span>);
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="_watchers" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _watchers</h3>
-					<div class="tsd-signature tsd-kind-icon">_watchers<span class="tsd-signature-symbol">:</span> <a href="../modules/_observer_observable_.html#watcherfunction" class="tsd-signature-type">WatcherFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+					<div class="tsd-signature tsd-kind-icon">_watchers<span class="tsd-signature-symbol">:</span> <a href="../modules/_observer_observable_.html#watcherfunction" class="tsd-signature-type">WatcherFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L69">observer/observable.ts:69</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L69">observer/observable.ts:69</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -233,7 +233,7 @@ observable.update(<span class="hljs-number">15</span>);
 					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L59">observer/observable.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L59">observer/observable.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -255,7 +255,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L105">observer/observable.ts:105</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L105">observer/observable.ts:105</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -292,7 +292,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L116">observer/observable.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L116">observer/observable.ts:116</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -329,7 +329,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L139">observer/observable.ts:139</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L139">observer/observable.ts:139</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -360,7 +360,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L83">observer/observable.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L83">observer/observable.ts:83</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -391,7 +391,7 @@ observable.update(<span class="hljs-number">15</span>);
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/8cb998f/src/observer/observable.ts#L128">observer/observable.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/282067e/src/observer/observable.ts#L128">observer/observable.ts:128</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -420,44 +420,47 @@ observable.update(<span class="hljs-number">15</span>);
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_index_.html">"index"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_index_.html">&quot;index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_array_.html">"observer/array"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_array_.html">&quot;observer/array&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_computed_observable_.html">"observer/computed-<wbr>observable"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_computed_observable_.html">&quot;observer/computed-<wbr>observable&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_index_.html">"observer/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_index_.html">&quot;observer/index&quot;</a>
 					</li>
-					<li class="current tsd-kind-external-module">
-						<a href="../modules/_observer_observable_.html">"observer/observable"</a>
+					<li class="current tsd-kind-module">
+						<a href="../modules/_observer_observable_.html">&quot;observer/observable&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_observer_.html">"observer/observer"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_observer_.html">&quot;observer/observer&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_reactivity_state_.html">"observer/reactivity-<wbr>state"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_reactivity_state_.html">&quot;observer/reactivity-<wbr>state&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_observer_watcher_.html">"observer/watcher"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_observer_watcher_.html">&quot;observer/watcher&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_store_index_.html">"store/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_store_index_.html">&quot;store/index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_store_store_.html">"store/store"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_store_store_.html">&quot;store/store&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_util_index_.html">"util/index"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_types_.html">&quot;types&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_util_log_.html">"util/log"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_util_index_.html">&quot;util/index&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_util_object_.html">"util/object"</a>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_util_log_.html">&quot;util/log&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_util_object_.html">&quot;util/object&quot;</a>
 					</li>
 				</ul>
 			</nav>
@@ -465,7 +468,7 @@ observable.update(<span class="hljs-number">15</span>);
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-external-module tsd-has-type-parameter">
+					<li class="current tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
 						<a href="_observer_observable_.observable.html" class="tsd-kind-icon">Observable</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
@@ -499,10 +502,10 @@ observable.update(<span class="hljs-number">15</span>);
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-has-type-parameter">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
 						<a href="../modules/_observer_observable_.html#watcherfunction" class="tsd-kind-icon">Watcher<wbr>Function</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
 						<a href="../modules/_observer_observable_.html#watcher_exception" class="tsd-kind-icon">WATCHER_<wbr>EXCEPTION</a>
 					</li>
 				</ul>
@@ -515,57 +518,27 @@ observable.update(<span class="hljs-number">15</span>);
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>
