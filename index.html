@@ -67,8 +67,7 @@
 				<a href="#fission" id="fission" style="color: inherit; text-decoration: none;">
 					<h1>Fission</h1>
 				</a>
-				<p><a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/amaya-loves-tea/fission.svg" alt="greenkeeper: enabled"></a>
-					<a href="https://travis-ci.org/amaya-loves-tea/fission"><img src="https://travis-ci.org/amaya-loves-tea/fission.svg?branch=master" alt="build: status"></a>
+				<p><a href="https://travis-ci.org/amaya-loves-tea/fission"><img src="https://travis-ci.org/amaya-loves-tea/fission.svg?branch=master" alt="build: status"></a>
 					<a href="https://codecov.io/gh/amaya-loves-tea/fission"><img src="https://codecov.io/gh/amaya-loves-tea/fission/branch/master/graph/badge.svg" alt="codecov: percent"></a>
 					<a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="commitizen: friendly"></a>
 					<a href="https://prettier.io/"><img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square" alt="code style: prettier"></a>
@@ -341,9 +340,12 @@ store.dispatch(<span class="hljs-string">&#x27;doSomethingAsync&#x27;</span>).th
 				<pre><code class="language-typescript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store({
   state: {
     products: {
-      stock: [{ name: <span class="hljs-string">&#x27;jelly&#x27;</span>, price: <span class="hljs-number">20</span>, qty: <span class="hljs-number">100</span> }, { name: <span class="hljs-string">&#x27;mouse&#x27;</span>, price: <span class="hljs-number">55</span>, qty: <span class="hljs-number">5</span> }],
+      stock: [
+        { name: <span class="hljs-string">&#x27;jelly&#x27;</span>, price: <span class="hljs-number">20</span>, qty: <span class="hljs-number">100</span> },
+        { name: <span class="hljs-string">&#x27;mouse&#x27;</span>, price: <span class="hljs-number">55</span>, qty: <span class="hljs-number">5</span> },
+      ],
       lowStockItems() {
-        <span class="hljs-keyword">return</span> stock.filter(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.qty &lt; <span class="hljs-number">10</span>).map(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.name);
+        <span class="hljs-keyword">return</span> stock.filter(<span class="hljs-function">(<span class="hljs-params">x</span>) =&gt;</span> x.qty &lt; <span class="hljs-number">10</span>).map(<span class="hljs-function">(<span class="hljs-params">x</span>) =&gt;</span> x.name);
       },
     },
   },
