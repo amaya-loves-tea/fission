@@ -7,15 +7,18 @@ import {
   ReactivityState,
   processReactivityQueue,
 } from './reactivity-state';
+import { Obj } from '../types';
 
 describe('Array observer helper functionality', () => {
   describe('arrayMethods', () => {
     const patchedMethods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
 
     it('contains patched array mutator methods', () => {
-      patchedMethods.forEach(method => {
-        expect(typeof (arrayMethods[method as keyof object] as any)).toBe('function');
-        expect((arrayMethods[method as keyof object] as any).name).toBe('mutator');
+      patchedMethods.forEach((method) => {
+        // @ts-ignore
+        expect(typeof arrayMethods[method as keyof Obj]).toBe('function');
+        // @ts-ignore
+        expect((arrayMethods[method as keyof Obj] as any).name).toBe('mutator');
       });
     });
 
@@ -26,7 +29,7 @@ describe('Array observer helper functionality', () => {
 
         array[ATTACHED_OBSERVABLE_KEY] = mockObservable;
 
-        patchedMethods.forEach(method => {
+        patchedMethods.forEach((method) => {
           (arrayMethods as any)[method].call(array);
         });
 
@@ -42,7 +45,7 @@ describe('Array observer helper functionality', () => {
         array[ATTACHED_OBSERVABLE_KEY] = mockObservable;
         arrayCopy[ATTACHED_OBSERVABLE_KEY] = mockObservable;
 
-        patchedMethods.forEach(method => {
+        patchedMethods.forEach((method) => {
           if (method === 'sort') {
             const mutatedResult = (arrayMethods as any)[method].call(
               array,
@@ -90,7 +93,7 @@ describe('Array observer helper functionality', () => {
 
         setReactivityState(ReactivityState.Disabled);
 
-        patchedMethods.forEach(method => {
+        patchedMethods.forEach((method) => {
           if (method === 'sort') {
             expect(() => {
               (arrayMethods as any)[method].call(array, (x: number, y: number) => x - y);

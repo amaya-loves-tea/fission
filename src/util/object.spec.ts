@@ -1,4 +1,5 @@
 import { isObject, isPlainObject, prototypeAugment, navigateToPropertyPath } from './object';
+import { Obj } from '../types';
 
 describe('object utility functions', () => {
   class TestClass {
@@ -16,7 +17,7 @@ describe('object utility functions', () => {
       };
       const targetObject: any[] = [];
 
-      prototypeAugment(targetObject, sourceObject);
+      prototypeAugment(targetObject as any, sourceObject);
 
       expect(Object.getPrototypeOf(targetObject)).toBe(sourceObject);
     });
@@ -45,7 +46,7 @@ describe('object utility functions', () => {
       // Functions
       expect(isObject(() => 5)).toBe(false);
       expect(
-        isObject(function() {
+        isObject(function () {
           return 'test';
         }),
       ).toBe(false);
@@ -72,7 +73,7 @@ describe('object utility functions', () => {
       // Functions
       expect(isPlainObject(() => 5)).toBe(false);
       expect(
-        isPlainObject(function() {
+        isPlainObject(function () {
           return 'test';
         }),
       ).toBe(false);
@@ -113,7 +114,7 @@ describe('object utility functions', () => {
 
       navigateToPropertyPath(object, 'nested.array.0.name', (obj, key) => {
         expect(obj).toHaveProperty(key);
-        expect(obj[key as keyof object]).toBe('test');
+        expect(obj[key as keyof Obj]).toBe('test');
       });
     });
 

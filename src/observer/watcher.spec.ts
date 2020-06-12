@@ -32,7 +32,7 @@ describe('watcher functions', () => {
       };
 
       expect(() => {
-        addPropertyWatcher(notObserved, 'price', value => console.log(value));
+        addPropertyWatcher(notObserved, 'price', (value) => console.log(value));
       }).toThrowError(new Error('Property is not observable.'));
     });
   });
@@ -86,7 +86,7 @@ describe('watcher functions', () => {
       };
 
       expect(() => {
-        removePropertyWatcher(notObserved, 'price', value => console.log(value));
+        removePropertyWatcher(notObserved, 'price', (value) => console.log(value));
       }).toThrowError(new Error('Property is not observable.'));
     });
   });

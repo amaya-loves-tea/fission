@@ -6,6 +6,7 @@
 import Observable, { WatcherFunction } from './observable';
 import { extractObservableFromProperty } from './observer';
 import { navigateToPropertyPath } from '../util';
+import { Obj } from '../types';
 
 /**
  * Finds the observable attached to a property within observed data and adds or removes a watcher from its watcher list.
@@ -18,7 +19,7 @@ import { navigateToPropertyPath } from '../util';
  * @typeparam T - Object on which to register a property watcher.
  * @typeparam U - Return type of the property watcher.
  */
-function modifyPropertyWatcherList<T extends object, U>(
+function modifyPropertyWatcherList<T extends Obj, U>(
   observedData: T,
   path: string,
   watcher: WatcherFunction<U>,
@@ -66,7 +67,7 @@ function modifyPropertyWatcherList<T extends object, U>(
  * @typeparam T - Return type of the watcher function.
  */
 export function addPropertyWatcher<T>(
-  data: object,
+  data: Obj,
   path: string,
   watcher: WatcherFunction<T>,
 ): WatcherFunction<T> {
@@ -106,7 +107,7 @@ export function addPropertyWatcher<T>(
  * @typeparam T - Return type of the watcher function.
  */
 export function removePropertyWatcher<T>(
-  data: object,
+  data: Obj,
   path: string,
   watcher: WatcherFunction<T>,
 ): void {

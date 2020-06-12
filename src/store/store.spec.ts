@@ -27,7 +27,7 @@ describe('Store', () => {
 
         it('is turned into reactive data using observe', () => {
           const store = Store.create(createStoreOptions());
-          Object.keys(store.$state).forEach(key => {
+          Object.keys(store.$state).forEach((key) => {
             const descriptor: any = Object.getOwnPropertyDescriptor(store.$state, key);
             expect(descriptor.get.name).toBe('reactiveGetter');
             expect(descriptor.set.name).toBe('reactiveSetter');
@@ -283,7 +283,7 @@ describe('Store', () => {
 
   test('store state can not be set outside of mutations', () => {
     const options: any = createStoreOptions();
-    options.actions.invalid = function(ctx: any) {
+    options.actions.invalid = function (ctx: any) {
       ctx.$state.name = 'INVALID';
     };
     const store: any = Store.create(options);

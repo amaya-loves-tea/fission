@@ -73,7 +73,7 @@ describe('Computed Observable', () => {
 });
 
 function timeout(time: number) {
-  return new Promise<any>(resolve => {
+  return new Promise<any>((resolve) => {
     setTimeout(() => {
       resolve();
     }, time);

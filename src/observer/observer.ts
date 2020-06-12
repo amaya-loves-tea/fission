@@ -13,6 +13,7 @@ import {
   addReactivityQueueItem,
   REACTIVITY_DISABLED_EXCEPTION,
 } from './reactivity-state';
+import { Obj } from '../types';
 
 /**
  * Gets the return type of a function.
@@ -42,7 +43,7 @@ type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : T;
  * @typeparam T - Plain javascript object.
  */
 export type ObservedData<T> = {
-  [P in keyof T]: T[P] extends Function ? ReturnType<T[P]> : ObservedData<T[P]>;
+  [P in keyof T]: T[P] extends (...args: any[]) => any ? ReturnType<T[P]> : ObservedData<T[P]>;
 };
 
 /**
@@ -73,7 +74,7 @@ export const ATTACHED_OBSERVABLE_KEY = '__observable__';
  *
  * @typeparam T - Plain javascript object.
  */
-export function observe<T extends object>(data: T): ObservedData<T> {
+export function observe<T extends Obj>(data: T): ObservedData<T> {
   if (isPlainObject(data)) {
     observeObject(data as T);
   } else {
@@ -91,7 +92,7 @@ export function observe<T extends object>(data: T): ObservedData<T> {
  *
  * @typeparam T - Any object type: array, object, class etc.
  */
-export function observeObject<T extends object>(data: T, observable?: Observable<T>): void {
+export function observeObject<T extends Obj>(data: T, observable?: Observable<T>): void {
   if (isObject(data)) {
     // make properties reactive
     const keys = Object.keys(data);
@@ -117,7 +118,7 @@ export function observeObject<T extends object>(data: T, observable?: Observable
     if (Array.isArray(data)) {
       if (ATTACHED_OBSERVABLE_KEY in data === false) {
         Object.defineProperty(data, ATTACHED_OBSERVABLE_KEY, { value: observable });
-        prototypeAugment(data, arrayMethods);
+        prototypeAugment(data, arrayMethods as any);
       }
     } else {
       Object.seal(data);
@@ -148,7 +149,7 @@ export function observeObject<T extends object>(data: T, observable?: Observable
  * @typeparam T - Any valid javascript value.
  */
 export function defineReactiveProperty<T>(
-  obj: object,
+  obj: Obj,
   key: string | number,
   observable: Observable<T>,
 ): void {
@@ -177,8 +178,8 @@ export function defineReactiveProperty<T>(
                 value = getter ? getter() : value;
                 if (observable.value !== value) {
                   observeObject(
-                    (value as unknown) as object,
-                    (observable as unknown) as Observable<object>,
+                    (value as unknown) as Obj,
+                    (observable as unknown) as Observable<Obj>,
                   );
                   observable.update(value);
                 }
@@ -202,9 +203,11 @@ export function defineReactiveProperty<T>(
  * @param key - Key of the property that has an observable instance.
  */
 export function extractObservableFromProperty(
-  object: object,
+  object: Obj,
   key: string | number,
 ): Observable<unknown> | undefined {
   const descriptor = Object.getOwnPropertyDescriptor(object, key);
-  return descriptor && descriptor.get ? (descriptor.get as Function)(true) : undefined;
+  return descriptor && descriptor.get
+    ? (descriptor.get as (...args: any[]) => any)(true)
+    : undefined;
 }

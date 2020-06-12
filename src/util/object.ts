@@ -1,10 +1,12 @@
+import { Obj } from '../types';
+
 /**
  * Add an object's functionality to your target object's prototype chain.
  *
  * @param target - Target object to augment.
  * @param source - Source to use for augmentation.
  */
-export function prototypeAugment(target: object, source: object): object {
+export function prototypeAugment(target: Obj, source: Obj): Obj {
   if (typeof target === 'object' && typeof source === 'object') {
     (target as any).__proto__ = source;
   }
@@ -55,20 +57,19 @@ export function isPlainObject(value: any): boolean {
  * @param path - Path to a property on the obj.
  * @param callback - Callback to be called when the property is found.
  */
-export function navigateToPropertyPath<T extends object>(
+export function navigateToPropertyPath<T extends Obj>(
   obj: T,
   path: string,
-  callback: (obj: object, key: string) => void,
+  callback: (obj: Obj, key: string) => void,
 ): void {
   const properties = path.split('.');
   let property: string;
 
   for (let i = 0; i < properties.length; i++) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (obj.hasOwnProperty(properties[i])) {
+    if (properties[i] in obj) {
       property = properties[i];
       if (i !== properties.length - 1) {
-        obj = obj[property as keyof object];
+        obj = obj[property as keyof Obj] as T;
       }
     } else {
       throw new Error(`Object does not contain the property with path '${path}'`);

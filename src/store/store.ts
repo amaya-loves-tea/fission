@@ -1,4 +1,3 @@
-/* eslint @typescript-eslint/interface-name-prefix: "off" */
 import { isPlainObject, logWarning } from '../util';
 import {
   observe,
@@ -9,6 +8,7 @@ import {
 import { ReactivityState, reactivityState } from '../observer/reactivity-state';
 import { WatcherFunction } from '../observer/observable';
 import { ObservedData } from '../observer/observer';
+import { Obj } from '../types';
 
 // Ensure reactivity is disabled
 setReactivityState(ReactivityState.Disabled);
@@ -18,7 +18,7 @@ setReactivityState(ReactivityState.Disabled);
  *
  * @typeparam T - Plain javascript object that will become the store state.
  */
-interface IStore<T extends object> {
+export interface IStore<T extends Obj> {
   /** Store instance data. */
   readonly $state: T;
   /**
@@ -61,7 +61,7 @@ interface IStore<T extends object> {
  * @typeparam T - [[IStoreOptions]] object.
  */
 type StoreDefinition<T> = T extends { state: infer A; modules?: infer B }
-  ? A extends object
+  ? A extends Obj
     ? IStore<ObservedData<A>> & { [P in keyof B]: StoreDefinition<B[P]> }
     : never
   : never;
@@ -72,7 +72,7 @@ type StoreDefinition<T> = T extends { state: infer A; modules?: infer B }
  * @typeparam T - Plain javascript object.
  * @typeparam U - Object containing nested [[IStoreOptions]] definitions.
  */
-interface IStoreOptions<T extends object, U extends object> {
+interface IStoreOptions<T extends Obj, U extends Obj> {
   /** Plain javascript object containing data properties. */
   state: T;
   /** Object of function definitions that can synchronously change store state. */
@@ -90,7 +90,7 @@ interface IMutationDefinitions {
   [key: string]: (
     context: {
       $state: any;
-      $commit: Function;
+      $commit: (...args: any[]) => any;
     },
     payload: any,
   ) => any;
@@ -101,7 +101,7 @@ interface IMutationDefinitions {
  */
 interface IActionDefinitions {
   [key: string]: (
-    context: { $state: any; $commit: Function; $dispatch: Function },
+    context: { $state: any; $commit: (...args: any[]) => any; $dispatch: (...args: any[]) => any },
     payload: any,
   ) => any;
 }
@@ -303,7 +303,7 @@ interface IActionDefinitions {
  * @typeparam T - [[IStoreOptions.state]] value in the options object passed to the constructor.
  * @typeparam U - [[IStoreOptions.modules]] value in the options object passed to the constructor.
  */
-export default class Store<T extends object, U extends object> {
+export default class Store<T extends Obj, U extends Obj> {
   /** Store instance data. */
   public readonly $state!: ObservedData<T>;
   /** Map of mutations that can get invoked using [[$commit]]. */
@@ -355,7 +355,7 @@ export default class Store<T extends object, U extends object> {
         const module = options.modules[keys[i] as keyof typeof options.modules];
         if (isPlainObject(module)) {
           Object.defineProperty(this, keys[i], {
-            value: new Store(module),
+            value: new Store(module as any),
             enumerable: true,
           });
         } else {
@@ -379,7 +379,7 @@ export default class Store<T extends object, U extends object> {
    * @typeparam T - [[IStoreOptions.state]] value in the options object passed to the function.
    * @typeparam U - [[IStoreOptions.modules]] value in the options object passed to the function.
    */
-  public static create<T extends object, U extends object>(
+  public static create<T extends Obj, U extends Obj>(
     options: IStoreOptions<T, U>,
   ): StoreDefinition<IStoreOptions<T, U>> {
     return (new Store(options) as unknown) as StoreDefinition<IStoreOptions<T, U>>;

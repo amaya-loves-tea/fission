@@ -2,6 +2,8 @@
  * Helper functionality to get and manipulate the current reactivity state.
  */
 
+import { Obj } from '../types';
+
 /**
  * Represents all the possible reactivity states.
  */
@@ -43,7 +45,7 @@ interface ReactivityQueueItem {
   /**
    * Function that manipulates observed data.
    */
-  func: Function;
+  func: (...args: any[]) => any;
   /**
    * Arguments to be provided when calling [[func]].
    */
@@ -51,7 +53,7 @@ interface ReactivityQueueItem {
   /**
    * Optional context to be used when calling [[func]].
    */
-  context?: object;
+  context?: Obj;
 }
 
 /**

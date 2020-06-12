@@ -10,6 +10,7 @@ import {
   REACTIVITY_DISABLED_EXCEPTION,
   processReactivityQueue,
 } from './reactivity-state';
+import { Obj } from '../types';
 
 describe('observer', () => {
   describe('defineReactiveProperty', () => {
@@ -149,7 +150,7 @@ describe('observer', () => {
 
             (data.array as any) = ['hello', 'world', '!'];
             data.getter = 9;
-            (data.method as any) = function() {
+            (data.method as any) = function () {
               return {};
             };
 
@@ -239,7 +240,7 @@ describe('observer', () => {
           it('observes the changed value and its children if the changed value is an array', () => {
             const target: any = {};
             defineReactiveProperty(target, 'array', new Observable([]));
-            prototypeAugment(target.array, arrayMethods);
+            prototypeAugment(target.array, arrayMethods as any);
             Object.defineProperty(target.array, ATTACHED_OBSERVABLE_KEY, {
               value: new Observable(undefined),
             });
@@ -247,7 +248,7 @@ describe('observer', () => {
             defineReactiveProperty(target.array, 0, new Observable(1));
 
             defineReactiveProperty(target.array, 1, new Observable([]));
-            prototypeAugment(target.array[1], arrayMethods);
+            prototypeAugment(target.array[1], arrayMethods as any);
             Object.defineProperty(target.array[1], ATTACHED_OBSERVABLE_KEY, {
               value: new Observable(undefined),
             });
@@ -256,7 +257,7 @@ describe('observer', () => {
             defineReactiveProperty(target.array[1], 1, new Observable(false));
 
             defineReactiveProperty(target.array, 2, new Observable([]));
-            prototypeAugment(target.array[2], arrayMethods);
+            prototypeAugment(target.array[2], arrayMethods as any);
             Object.defineProperty(target.array[2], ATTACHED_OBSERVABLE_KEY, {
               value: new Observable(undefined),
             });
@@ -276,14 +277,20 @@ describe('observer', () => {
 
             target.array = [
               'test',
-              [[1, 2], [true, true]],
+              [
+                [1, 2],
+                [true, true],
+              ],
               [{ message: 'hi' }, { message: 'go' }, { message: 'there' }],
             ];
 
             expect(target).toEqual({
               array: [
                 'test',
-                [[1, 2], [true, true]],
+                [
+                  [1, 2],
+                  [true, true],
+                ],
                 [{ message: 'hi' }, { message: 'go' }, { message: 'there' }],
               ],
             });
@@ -385,7 +392,7 @@ describe('observer', () => {
         nested: {
           list: ['larry', 'moe', 'curly'],
           excludeMoe() {
-            return this.list.filter(x => x !== 'moe');
+            return this.list.filter((x) => x !== 'moe');
           },
         },
       };
@@ -412,13 +419,13 @@ describe('observer', () => {
      * This is to avoid the caveats where dynamically adding properties is not observed.
      */
     it('recursively seals objects to prevent properties from being added or deleted to them', () => {
-      const validateObjectSealed = (data: object) => {
+      const validateObjectSealed = (data: Obj) => {
         for (const key in data) {
           if (isObject(data)) {
             if (!Array.isArray(data)) {
               expect(Object.isSealed(data)).toBe(true);
             }
-            validateObjectSealed(data[key as keyof object]);
+            validateObjectSealed(data[key as keyof Obj] as Obj);
           }
         }
       };
@@ -515,7 +522,7 @@ describe('observer', () => {
           if (isObject(array[i])) {
             validateObjectObserved(array[i]);
           } else {
-            validatePropertyObserved(array, i);
+            validatePropertyObserved(array as any, i);
           }
         }
       }
@@ -577,7 +584,11 @@ describe('observer', () => {
 
       test('shift', () => {
         validateMutatorMethod(
-          [[1, 2], ['hi', 'there'], [true, false]],
+          [
+            [1, 2],
+            ['hi', 'there'],
+            [true, false],
+          ],
           (initialArray, observedArray) => {
             // Validate original functionality
             const removedItem = observedArray.shift();
@@ -709,12 +720,12 @@ describe('observer', () => {
 
 const SKIP_RECURSIVE_CHECK = 'SKIP_RECURSIVE_CHECK';
 
-export function validateObjectObserved(obj: object) {
+export function validateObjectObserved(obj: Obj) {
   const keys = Object.keys(obj);
   for (const key of keys) {
-    const value: any = obj[key as keyof object];
+    const value: any = obj[key as keyof Obj];
 
-    if (isObject(value) && !!value[SKIP_RECURSIVE_CHECK as keyof object]) {
+    if (isObject(value) && !!value[SKIP_RECURSIVE_CHECK as keyof Obj]) {
       validateObjectObserved(value);
     }
 
@@ -722,8 +733,8 @@ export function validateObjectObserved(obj: object) {
   }
 }
 
-export function validatePropertyObserved(obj: object, key: string | number) {
-  const value = obj[key as keyof object];
+export function validatePropertyObserved(obj: Obj, key: string | number) {
+  const value = obj[key as keyof Obj];
 
   if (Array.isArray(value)) {
     // Has attached observable instance
