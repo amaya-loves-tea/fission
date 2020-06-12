@@ -18,7 +18,7 @@ export function prototypeAugment(target: Obj, source: Obj): Obj {
  *
  * @param value - Value to check.
  */
-export function isObject(value: any): boolean {
+export function isObject(value: unknown): boolean {
   return value !== null && typeof value === 'object' ? true : false;
 }
 
@@ -27,8 +27,8 @@ export function isObject(value: any): boolean {
  *
  * @param value - Value to check.
  */
-export function isPlainObject(value: any): boolean {
-  return isObject(value) && value.constructor === Object ? true : false;
+export function isPlainObject(value: unknown): boolean {
+  return isObject(value) && (value as Obj).constructor === Object ? true : false;
 }
 
 /**

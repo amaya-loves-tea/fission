@@ -1,6 +1,5 @@
 # Fission
 
-[![greenkeeper: enabled](https://badges.greenkeeper.io/amaya-loves-tea/fission.svg)](https://greenkeeper.io/)
 [![build: status](https://travis-ci.org/amaya-loves-tea/fission.svg?branch=master)](https://travis-ci.org/amaya-loves-tea/fission)
 [![codecov: percent](https://codecov.io/gh/amaya-loves-tea/fission/branch/master/graph/badge.svg)](https://codecov.io/gh/amaya-loves-tea/fission)
 [![commitizen: friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
@@ -295,9 +294,12 @@ Watchers are functions that get called when a state property changes. You can ad
 const store = new Store({
   state: {
     products: {
-      stock: [{ name: 'jelly', price: 20, qty: 100 }, { name: 'mouse', price: 55, qty: 5 }],
+      stock: [
+        { name: 'jelly', price: 20, qty: 100 },
+        { name: 'mouse', price: 55, qty: 5 },
+      ],
       lowStockItems() {
-        return stock.filter(x => x.qty < 10).map(x => x.name);
+        return stock.filter((x) => x.qty < 10).map((x) => x.name);
       },
     },
   },
