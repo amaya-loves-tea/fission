@@ -1,6 +1,6 @@
 {
   "name": "@teasenshi/fission",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "State management library for ES5+ environments designed for ease of use.",
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
