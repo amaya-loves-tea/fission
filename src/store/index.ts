@@ -3,4 +3,4 @@
  */
 
 /** @ignore */
-export { default } from './store';
+export { default, IStore } from './store';
