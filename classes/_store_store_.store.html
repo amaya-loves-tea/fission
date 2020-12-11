@@ -92,9 +92,9 @@
 					</a>
 					<p>State is a data object that is observed for data changes.</p>
 					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store({
-  <span class="hljs-attr">state</span>: {
-    <span class="hljs-attr">price</span>: <span class="hljs-number">20</span>,
-    <span class="hljs-attr">quantity</span>: <span class="hljs-number">10</span>,
+  state: {
+    price: <span class="hljs-number">20</span>,
+    quantity: <span class="hljs-number">10</span>,
     <span class="hljs-comment">// Computed property that evaluates to the result of calling the function.</span>
     <span class="hljs-comment">// They automatically update when their dependencies update so that they always contain the latest value.</span>
     <span class="hljs-comment">// For example changing either price, qty or both will cause total to be reevaluated.</span>
@@ -115,18 +115,18 @@
 					<p>Asynchronous data changes in a mutation will cause an error to occur.
 					If you need to run some workflow that updates store state use a combination of actions and mutations.</p>
 					<pre><code class="language-typescript">  <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store({
-    <span class="hljs-attr">state</span>: {
-      <span class="hljs-attr">price</span>: <span class="hljs-number">20</span>,
-      <span class="hljs-attr">quantity</span>: <span class="hljs-number">10</span>,
+    state: {
+      price: <span class="hljs-number">20</span>,
+      quantity: <span class="hljs-number">10</span>,
       total(): <span class="hljs-built_in">number</span> {
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.price * <span class="hljs-built_in">this</span>.quantity;
       }
     },
-    <span class="hljs-attr">mutations</span>: {
+    mutations: {
       <span class="hljs-comment">// All mutations receive a context variable as a first parameter which has been destructured in the following example.</span>
       <span class="hljs-comment">// The second parameter is the payload passed to the mutation which can be any value.</span>
       <span class="hljs-comment">// Use payload as an object if you wish to pass multiple parameters to the mutation.</span>
-      <span class="hljs-function"><span class="hljs-title">incrementPriceBy</span>(<span class="hljs-params">{ $state, $commit }, value</span>)</span>{
+      incrementPriceBy({ $state, $commit }, value){
         $state.price += value;
 
         <span class="hljs-comment">// You can do another commit from this mutation.</span>
@@ -146,21 +146,21 @@
 					<p>Actions are pieces of functionality, often asynchronous, that performs a set of operations or executes a workflow.</p>
 					<p>They cannot modify store state directly and should instead use the <code>context.commit</code> parameter to persist data changes.</p>
 					<pre><code class="language-typescript">  <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store({
-    <span class="hljs-attr">state</span>: {
-      <span class="hljs-attr">price</span>: <span class="hljs-number">20</span>,
-      <span class="hljs-attr">quantity</span>: <span class="hljs-number">10</span>,
+    state: {
+      price: <span class="hljs-number">20</span>,
+      quantity: <span class="hljs-number">10</span>,
       total(): <span class="hljs-built_in">number</span> {
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.price * <span class="hljs-built_in">this</span>.quantity;
       }
     },
-    <span class="hljs-attr">mutations</span>: {
+    mutations: {
       ...
     }
-    <span class="hljs-attr">actions</span>: {
+    actions: {
       <span class="hljs-comment">// All actions receive a context variable as a first parameter which has been destructured in the following example.</span>
       <span class="hljs-comment">// The second parameter is the payload passed to the action which can be any value.</span>
       <span class="hljs-comment">// Use payload as an object if you wish to pass multiple parameters to the action.</span>
-      <span class="hljs-function"><span class="hljs-title">setTotal</span>(<span class="hljs-params">{ $state, $commit, $dispatch }, payload</span>)</span> {
+      setTotal({ $state, $commit, $dispatch }, payload) {
         <span class="hljs-comment">// State in actions are readonly and will cause an error when you try to change a value.</span>
         $state.price = <span class="hljs-number">50</span>; <span class="hljs-comment">// this line throws an exception</span>
 
@@ -176,7 +176,7 @@
         <span class="hljs-comment">// Actions can return a value to the caller</span>
         <span class="hljs-keyword">return</span> <span class="hljs-number">55</span>;
       }
-      <span class="hljs-function"><span class="hljs-title">doSomethingAsync</span>(<span class="hljs-params">{ $state, $commit, $dispatch }, payload</span>)</span> {
+      doSomethingAsync({ $state, $commit, $dispatch }, payload) {
         <span class="hljs-comment">// You use promises with actions by returning a Promise</span>
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
           <span class="hljs-keyword">try</span> {
@@ -192,7 +192,7 @@
     }
   });
 
- <span class="hljs-keyword">const</span> result = store.$dispatch(<span class="hljs-string">&#x27;setTotal&#x27;</span>, { <span class="hljs-attr">price</span>: <span class="hljs-number">50</span>, <span class="hljs-attr">qty</span>: <span class="hljs-number">30</span> });
+ <span class="hljs-keyword">const</span> result = store.$dispatch(<span class="hljs-string">&#x27;setTotal&#x27;</span>, { price: <span class="hljs-number">50</span>, qty: <span class="hljs-number">30</span> });
  <span class="hljs-comment">// Ignoring the line that causes an error in the action this would be the output</span>
  <span class="hljs-built_in">console</span>.log(result); <span class="hljs-comment">// output: 55</span>
  <span class="hljs-built_in">console</span>.log(store.$state); <span class="hljs-comment">// output: { price: 50, quantity: 30, total: 1500 }</span>
@@ -206,29 +206,29 @@
 					</a>
 					<p>Modules are a way to define recursive store instances nested under the root store instance.</p>
 					<pre><code class="language-typescript"> <span class="hljs-keyword">const</span> store = Store.create({
-   <span class="hljs-attr">state</span>: {
-     <span class="hljs-attr">owner</span>: <span class="hljs-string">&#x27;owner&#x27;</span>
+   state: {
+     owner: <span class="hljs-string">&#x27;owner&#x27;</span>
    },
-   <span class="hljs-attr">mutations</span>: {},
-   <span class="hljs-attr">actions</span>: {},
-   <span class="hljs-attr">modules</span>: {
-     <span class="hljs-attr">factory</span>: {
-       <span class="hljs-attr">state</span>: {
-         <span class="hljs-attr">workers</span>: [],
+   mutations: {},
+   actions: {},
+   modules: {
+     factory: {
+       state: {
+         workers: [],
          headCount(): <span class="hljs-built_in">number</span> {
            <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.workers.length;
          },
        },
-       <span class="hljs-attr">actions</span>: {
-         <span class="hljs-function"><span class="hljs-title">addWorker</span>(<span class="hljs-params">{ state }, payload</span>)</span> {
+       actions: {
+         addWorker({ state }, payload) {
            <span class="hljs-comment">// Add a worker</span>
          },
        },
-       <span class="hljs-attr">modules</span>: {
-         <span class="hljs-attr">shop</span>: {
-           <span class="hljs-attr">state</span>: {
-             <span class="hljs-attr">employees</span>: [],
-             <span class="hljs-attr">manager</span>: <span class="hljs-string">&#x27;someone&#x27;</span>,
+       modules: {
+         shop: {
+           state: {
+             employees: [],
+             manager: <span class="hljs-string">&#x27;someone&#x27;</span>,
              headCount(): <span class="hljs-built_in">number</span> {
                <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.employees.length + <span class="hljs-number">1</span>;
              },
@@ -326,7 +326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L312">store/store.ts:312</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L312">store/store.ts:312</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -355,7 +355,7 @@
 					<div class="tsd-signature tsd-kind-icon">$actions<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_store_store_.iactiondefinitions.html" class="tsd-signature-type">IActionDefinitions</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L312">store/store.ts:312</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L312">store/store.ts:312</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -370,7 +370,7 @@
 					<div class="tsd-signature tsd-kind-icon">$mutations<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_store_store_.imutationdefinitions.html" class="tsd-signature-type">IMutationDefinitions</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L310">store/store.ts:310</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L310">store/store.ts:310</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -385,7 +385,7 @@
 					<div class="tsd-signature tsd-kind-icon">$state<span class="tsd-signature-symbol">:</span> <a href="../modules/_observer_observer_.html#observeddata" class="tsd-signature-type">ObservedData</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L308">store/store.ts:308</a></li>
+							<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L308">store/store.ts:308</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -407,7 +407,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L396">store/store.ts:396</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L396">store/store.ts:396</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -453,7 +453,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L431">store/store.ts:431</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L431">store/store.ts:431</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -499,7 +499,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L464">store/store.ts:464</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L464">store/store.ts:464</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -542,7 +542,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L454">store/store.ts:454</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L454">store/store.ts:454</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -585,7 +585,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/2edbcf9/src/store/store.ts#L382">store/store.ts:382</a></li>
+									<li>Defined in <a href="https://github.com/amaya-loves-tea/fission/blob/13194ed/src/store/store.ts#L382">store/store.ts:382</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
